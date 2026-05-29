@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>第 1 轮 · PRD · 小丑牌核心循环（产品需求文档）</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --line: #e3e0d8;
+    --gold: #b8860b;
+    --gold-bg: #fff8dc;
+    --purple: #5b3a8e;
+    --purple-bg: #f3eefa;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --code-bg: #f4f1ea;
+    --code-border: #d9d2c0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 15px; line-height: 1.7; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 56px 32px 120px; }
+
+  .doc-meta {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    color: var(--purple);
+  }
+  .doc-meta strong { color: var(--purple); }
+
+  h1 { font-size: 32px; text-align: center; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 12px; font-size: 15px; }
+  .meta { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 22px; margin-top: 56px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--purple); color: var(--purple); }
+  h3 { font-size: 17px; margin-top: 32px; margin-bottom: 12px; color: var(--ink); }
+  h4 { font-size: 15px; margin-top: 20px; margin-bottom: 8px; color: var(--purple); }
+  p { margin: 12px 0; }
+  ul, ol { padding-left: 24px; margin: 12px 0; }
+  li { margin: 6px 0; }
+  code { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 4px; padding: 1px 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--purple); }
+  pre { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 4px solid var(--purple); border-radius: 6px; padding: 16px 18px; overflow-x: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; border: none; padding: 0; color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  .callout { border-left: 4px solid; border-radius: 4px; padding: 12px 16px; margin: 16px 0; background: #fff; }
+  .callout.tip { border-color: var(--blue); background: var(--blue-bg); }
+  .callout.warn { border-color: var(--red); background: var(--red-bg); }
+  .callout.win { border-color: var(--green); background: var(--green-bg); }
+  .callout.gold { border-color: var(--gold); background: var(--gold-bg); }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .lock { display: inline-block; background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: 28px; position: relative; margin: 8px 0; }
+  .checklist li::before { content: '☐'; position: absolute; left: 8px; color: var(--purple); font-weight: 700; }
+  hr { border: none; border-top: 1px dashed var(--line); margin: 48px 0; }
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .flow {
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    background: var(--purple-bg); padding: 14px 18px; border-radius: 8px;
+    margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  .flow .node { background: white; border: 1px solid var(--purple); padding: 4px 10px; border-radius: 4px; }
+  .flow .arrow { color: var(--purple); font-weight: 700; }
+  .module-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .module-card h3 { margin-top: 0; color: var(--purple); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc-meta">
+  <strong>📋 产品经理 AI 同事产物</strong>
+  本文档由「product-management」skill 驱动的 PM 子代理产出，描述「做什么」而非「怎么做」。技术实施细节（框架、文件结构、代码组织）由全栈工程师 AI 同事在「实施指引」环节决定。
+  <br><br>
+  <strong>配套文档</strong>：<code>01-第1轮-DESIGN-小丑牌核心循环.html</code>（设计规范）· <code>01-第1轮-实施指引.html</code>（学员落地步骤）
+</div>
+
+<h1>📋 第 1 轮 · PRD · 小丑牌核心循环</h1>
+<p class="subtitle">完整 Balatro 玩法循环 —— 3 关盲注 + 商店 + 6 张 Joker 库 + 弃牌 + 设置 + 动效 + AI 出牌</p>
+<p class="meta">课程版本：B2 · 第 1 轮 / 共 6 轮 · 文档版本：v7（v5 + 设置 + 动效 + AI 三块前置）</p>
+
+<div class="callout gold">
+  <strong>📌 v6 → v7 关键变更（必读）</strong>
+  v6 把「设置面板 / 完整动效 / AI 出牌」全砍到后续轮次，导致第 1 轮太单薄不像 Balatro。v7 把这 3 块从第 3/6 轮前置到第 1 轮，让学员第一节课就能产出「完整能玩 + 4 类动效 + 设置面板 + AI 自动打牌」的成品。同时修复 v6 的牌堆位置 bug：从 <code>position: fixed</code> 浮 viewport 改为 <b>第 2 段出牌区右下角 absolute</b>，永不被覆盖层遮挡。
+</div>
+
+<h2>一、产品概述</h2>
+
+<p>Balatro 风格的「扑克 + 小丑牌组合」游戏的核心循环版本。玩家从 0 金币、0 张小丑牌开始，通过出 5 张以内扑克牌型 + 持有小丑牌触发的加成攒分，4 手内打到当前盲注的目标分则通关，进入商店购买新小丑牌增强能力，依次推进 3 个递增盲注关卡。3 关全过通关，任意一关 4 手内打不到则失败。</p>
+
+<p>本轮的目标是「跑通完整玩法循环」，让玩家亲眼看到「选牌 → 出牌 → 触发 Joker → 计分 → 通关 → 进商店 → 买卡变强 → 打下一关」这条主链路。</p>
+
+<h2>二、核心玩法循环</h2>
+
+<div class="flow">
+  <span class="node">开局 $0 / 0 Joker</span>
+  <span class="arrow">→</span>
+  <span class="node">小盲注 300 分</span>
+  <span class="arrow">→</span>
+  <span class="node">通关拿钱</span>
+  <span class="arrow">→</span>
+  <span class="node">商店买 / 跳过</span>
+  <span class="arrow">→</span>
+  <span class="node">中盲注 500</span>
+  <span class="arrow">→</span>
+  <span class="node">商店</span>
+  <span class="arrow">→</span>
+  <span class="node">大盲注 800</span>
+  <span class="arrow">→</span>
+  <span class="node">🎉 通关全部</span>
+</div>
+
+<p>任意一关 4 手内未达目标分 → <code>💀 失败</code>。</p>
+
+<h2>三、功能模块</h2>
+
+<!-- ============ 模块 1 ============ -->
+<div class="module-card">
+  <h3>M1 · 基础玩法（抽牌 / 选牌 / 出牌 / 计分）</h3>
+
+  <table>
+    <tr><th>项</th><th>规则 <span class="lock">锁定</span></th></tr>
+    <tr><td>牌组</td><td>标准 52 张扑克（4 花色 × 13 点数，无大小王）</td></tr>
+    <tr><td>手牌</td><td>8 张（开局抽 8，出牌后补到 8）</td></tr>
+    <tr><td>每关手数</td><td>4 手（用完未达目标分 = 本关失败）</td></tr>
+    <tr><td>每关弃牌</td><td>3 次（弃牌不消耗手数）</td></tr>
+    <tr><td>每手出牌张数</td><td><b>1 - 5 张均可</b>（少于 5 张只能匹配不依赖 5 张的牌型）</td></tr>
+    <tr><td>选牌</td><td>点击切换选中态；已选 5 张时再点未选中的牌不响应</td></tr>
+    <tr><td>弃牌条件</td><td>选中 ≥ 1 张 且 剩余弃牌数 &gt; 0</td></tr>
+  </table>
+
+  <h4>1.1 牌型识别（按基础筹码降序）<span class="lock">数值锁定</span></h4>
+  <table>
+    <tr><th>牌型</th><th>识别条件</th><th>基础筹码</th><th>基础倍率</th></tr>
+    <tr><td>同花顺</td><td>5 张同花色 + 5 张连续点数（含 A-2-3-4-5、10-J-Q-K-A）</td><td>100</td><td>×8</td></tr>
+    <tr><td>四条</td><td>同点 4 张</td><td>60</td><td>×7</td></tr>
+    <tr><td>葫芦</td><td>三条 + 一对</td><td>40</td><td>×4</td></tr>
+    <tr><td>同花</td><td>5 张同花色</td><td>35</td><td>×4</td></tr>
+    <tr><td>顺子</td><td>5 张连续点数</td><td>30</td><td>×4</td></tr>
+    <tr><td>三条</td><td>同点 3 张</td><td>30</td><td>×3</td></tr>
+    <tr><td>两对</td><td>两个不同点数的对子</td><td>20</td><td>×2</td></tr>
+    <tr><td>对子</td><td>同点 2 张</td><td>10</td><td>×2</td></tr>
+    <tr><td>高牌</td><td>都不匹配</td><td>5</td><td>×1</td></tr>
+  </table>
+
+  <h4>1.2 计分公式 <span class="lock">锁定</span></h4>
+  <pre><code>得分 = (牌型基础筹码 + 所有出牌的点数之和) × 牌型基础倍率
+       → 然后按持有 Joker 数组的顺序，每张 Joker 的 effect 依次修改 (chips, mult)
+       → 最终得分 = 最终 chips × 最终 mult</code></pre>
+  <p><b>点数计算规则</b>：A = 11、J/Q/K = 10、其他 = 数字本身。</p>
+</div>
+
+<!-- ============ 模块 2 ============ -->
+<div class="module-card">
+  <h3>M2 · 小丑牌系统</h3>
+
+  <table>
+    <tr><th>项</th><th>规则 <span class="lock">锁定</span></th></tr>
+    <tr><td>Joker 槽上限</td><td>5（满了不能再买）</td></tr>
+    <tr><td>开局持有</td><td>0 张（5 个全空槽 —— 跟原作完全一致，<b>不要起手就给</b>）</td></tr>
+    <tr><td>触发顺序</td><td>按 ownedJokers 数组顺序依次执行 effect，可叠加</td></tr>
+    <tr><td>视觉反馈</td><td>每次出牌时被触发的 Joker 卡短暂高亮（≈800ms：上移 + 金光）</td></tr>
+  </table>
+
+  <h4>2.1 Joker 候选库（共 6 张）<span class="lock">字段 + 数值锁定</span></h4>
+  <table>
+    <tr><th>名称</th><th>稀有度</th><th>价格</th><th>art</th><th>效果</th></tr>
+    <tr><td>小丑</td><td>普通</td><td>$3</td><td>🃏</td><td>每手 +4 倍率（无条件加成）</td></tr>
+    <tr><td>学者</td><td>普通</td><td>$3</td><td>📖</td><td>打出的牌每张 A：+4 倍率</td></tr>
+    <tr><td>红心收藏家</td><td>稀有</td><td>$5</td><td>❤️</td><td>打出的牌里含 ♥ 时，倍率 ×4</td></tr>
+    <tr><td>梅花爱好者</td><td>稀有</td><td>$5</td><td>♣</td><td>打出的牌里含 ♣ 时，倍率 ×4</td></tr>
+    <tr><td>皇家头牌</td><td>稀有</td><td>$5</td><td>👑</td><td>打出的牌里含 J / Q / K 时，倍率 ×10</td></tr>
+    <tr><td>同花顺大师</td><td>传说</td><td>$8</td><td>🔥</td><td>打出同花顺时 +50 倍率</td></tr>
+  </table>
+
+  <h4>2.2 稀有度色板 <span class="lock">锁定</span></h4>
+  <p>普通蓝 <code>#6cb4d3</code> / 罕见绿 <code>#5bc97a</code> / 稀有红 <code>#e34b6f</code> / 传说紫 <code>#b577ff</code>（用于 Joker 卡四角内描边）。</p>
+</div>
+
+<!-- ============ 模块 3 ============ -->
+<div class="module-card">
+  <h3>M3 · 盲注与商店</h3>
+
+  <h4>3.1 3 关盲注 <span class="lock">锁定</span></h4>
+  <table>
+    <tr><th>关卡</th><th>名称</th><th>目标分</th><th>icon</th></tr>
+    <tr><td>第 1 关</td><td>小盲注</td><td>300</td><td>🔵</td></tr>
+    <tr><td>第 2 关</td><td>中盲注</td><td>500</td><td>🟡</td></tr>
+    <tr><td>第 3 关</td><td>大盲注</td><td>800</td><td>🔴</td></tr>
+  </table>
+
+  <h4>3.2 通关奖励 <span class="lock">锁定</span></h4>
+  <pre><code>奖金 = $5 + 剩余手数 × $1
+（剩 4 手通关 = $9，剩 0 手通关 = $5）</code></pre>
+
+  <h4>3.3 商店行为 <span class="lock">锁定</span></h4>
+  <ul>
+    <li>每次进商店：从 6 张候选库随机抽 3 张<b>不重复</b>展示</li>
+    <li>每张下方按钮：可买（钱够 + 槽未满）→ <code>购买 $X</code>；钱不够 → <code>钱不够</code>（灰）；槽满 → <code>槽满了</code>（灰）；已购 → <code>已售出</code>（卡半透明）</li>
+    <li>右下角 <code>跳过 →</code> 按钮永远可点</li>
+    <li><b>本轮不做</b>：刷新按钮、出售 Joker、Tarot/Planet 卡</li>
+  </ul>
+</div>
+
+<!-- ============ 模块 4 ============ -->
+<div class="module-card">
+  <h3>M4 · 状态机</h3>
+
+  <p>游戏整体是一个状态机，状态取值与转移：</p>
+
+  <table>
+    <tr><th>状态</th><th>含义</th><th>转出</th></tr>
+    <tr><td><code>playing</code></td><td>正在打某关盲注</td><td>累计分达标 → <code>shop</code>；4 手用完未达 → <code>lost</code></td></tr>
+    <tr><td><code>shop</code></td><td>商店阶段</td><td>「跳过」或买完 → 下一关 <code>playing</code>；若已是最后一关 → <code>won</code></td></tr>
+    <tr><td><code>won</code></td><td>3 关全过</td><td>「重新开始」→ 初始 <code>playing</code></td></tr>
+    <tr><td><code>lost</code></td><td>某关失败</td><td>「重新开始」→ 初始 <code>playing</code></td></tr>
+  </table>
+</div>
+
+<h2>四、UI 布局要求 <span class="lock">v4 实测版本 · 尺寸/比例硬锁定</span></h2>
+
+<div class="callout warn">
+  <strong>⛔️ v3 → v4 关键差异（必读）</strong>
+  v3 牌太小、右主区大片空白，跟官方 Balatro 视觉密度差很多。v4 按官方截图严格锁定 <b>面板比例 + 牌物理尺寸 + 字体使用规则 + 按钮规范</b>，所有数值都已在线上版本（<a href="https://diaojz.github.io/balatro-v4/">balatro-v4</a>）实测可玩。
+</div>
+
+<h3>4.1 整页比例 <span class="lock">硬锁定</span></h3>
+
+<table>
+  <tr><th>区域</th><th>占比</th><th>实现</th></tr>
+  <tr><td><b>左 sidebar</b></td><td>整页宽度 <b>≈ 28%</b>（约 1/4 多）</td><td><code>width: min(28vw, 480px)</code> + <code>min-width: 280px</code>，固定宽度不随内容拉伸</td></tr>
+  <tr><td><b>右主区</b></td><td>整页宽度 <b>≈ 72%</b>（flex: 1）</td><td>纵向 <b>3 段平均分配</b>：<code>display: grid; grid-template-rows: 1fr 1fr 1fr</code></td></tr>
+  <tr><td>整页高度</td><td><b>100vh 充满</b></td><td><code>overflow: hidden</code> 不允许页面级滚动条；不留大块空白</td></tr>
+  <tr><td>右主区右边</td><td>段背景充满到 viewport 右边</td><td><b>不要</b>给 main-area 加 padding-right —— 否则 fixed 牌堆会浮在画布外</td></tr>
+</table>
+
+<h3>4.2 左 sidebar 内容（从上到下）</h3>
+<ol>
+  <li><b>顶部 logo</b>：<code>🃏 小丑牌</code>（Press Start 2P 18px 金色 + 2px 黑色硬投影）</li>
+  <li><b>盲注大面板</b>：「盲注 X/3」标签 + 盲注 icon（🔵🟡🔴）+ 名称（小/中/大盲注，18px Inter bold）+ 目标分（VT323 28px 金）+ 奖励 $X（13px Inter bold 金）</li>
+  <li><b>Round Score</b>：「当前分」标签（13px Inter）+ VT323 大数字（≥ 40px）+ 横条进度条（高 8px，<code>blindScore / target</code> 比例）</li>
+  <li><b>HAND 计分块</b>：上方牌型名（Inter 14px bold 蓝色，未选时显示「— 选牌出牌 —」灰）+ 下方两个并排块 ——
+    <ul>
+      <li><b>左块 chips</b>：水彩蓝渐变 <code>linear-gradient(135deg, #4dd6ff, #2196f3)</code> + 中间黑色 chips 数字（Press Start 2P ≥ 28px）+ "CHIPS" 标签</li>
+      <li><b>中间 × 字</b>（白色 Press Start 2P 10px）</li>
+      <li><b>右块 mult</b>：火焰红渐变 <code>linear-gradient(135deg, #ff8844, #ff3344)</code> + 中间黑色 mult 数字 + "MULT" 标签</li>
+    </ul>
+    <b>未选 / 未出牌时数字显示什么</b>：chips = <code>0</code>、mult = <code>0</code>（不做预估、不显示上一手值），出牌动画结束时再跳成最终值（按 §5.1 时间线）
+  </li>
+  <li><b>Hands / Discards</b>：两个并排小面板，绿/红 VT323 大数字（≥ 34px）</li>
+  <li><b>金币</b>：黑底嵌入框，VT323 金色 44px + "$" Press Start 2P 14px</li>
+  <li><b>Ante 1/3 · Round X</b>：Inter 13px，金/蓝双色</li>
+  <li><b>重新开始按钮</b>：红色渐变（参考 4.6 按钮规范）</li>
+</ol>
+
+<h3>4.3 右主区 3 段（每段 1/3 高度）</h3>
+
+<table>
+  <tr><th>段</th><th>占高度</th><th>内容 + 关键尺寸</th></tr>
+  <tr>
+    <td><b>第 1 段</b><br>Joker 区</td>
+    <td>≈ 33%</td>
+    <td>
+      顶部标题 <code>JOKERS · X/5</code>（Press Start 2P <b>14px</b> 金 + 2px 黑投影）+ 5 个 Joker 槽位横排<br>
+      <b>Joker 卡尺寸：宽 ≥ 140px、高 ≥ 200px</b>（最终 v4 取 140×200，v3 是 86×116）<br>
+      <b>Joker 空槽样式</b>：跟实卡同尺寸 140×200，<code>border: 2-3px dashed rgba(79,70,229,.4)</code> 虚线紫蓝边、半透紫底；中心一个 <code>+</code> 号（Inter 24px 灰）+ 下方文字 <code>空槽</code>（Inter 12px 灰）<br>
+      <b>关键</b>：<code>.joker-row</code> 使用 <code>align-items: flex-start</code> 让卡贴段顶部（不要 flex-end 否则在段底）
+    </td>
+  </tr>
+  <tr>
+    <td><b>第 2 段</b><br>Played hand 区</td>
+    <td>≈ 33%</td>
+    <td>
+      顶部标题 <code>出牌区</code>（Inter 13px bold 灰）+ 可选牌型浮字（Inter 16px bold 蓝）<br>
+      下方 5 张牌横排（Played hand 牌）<br>
+      <b>未出牌空态</b>：居中显示提示文字 <code>选择手牌组成牌型（1-5 张）</code>（Inter 14px 灰、opacity 0.55）。<b>不要在此区域显示 chips × mult = score 预估公式</b>（v3 升级再加）<br>
+      <b>关键</b>：<code>.played-area</code> 使用 <code>align-items: flex-start</code>（贴段顶，不居中）
+    </td>
+  </tr>
+  <tr>
+    <td><b>第 3 段</b><br>手牌 + 操作</td>
+    <td>≈ 33%</td>
+    <td>
+      上方标题 <code>手牌</code>（Inter 14px bold 金）+ 计数 <code>已选 X / 5 张</code>（Inter 13px bold 灰）<br>
+      8 张手牌横排居中（<b>不叠层</b>，<code>gap: 8px</code>）<br>
+      <b>扑克牌尺寸：宽 100px、高 145px</b>（最终 v4 取 100×145，是 8 张并排放得下的甜点）<br>
+      <b>手牌段 padding-top ≥ 36px</b>（选中态会 <code>translateY(-22~28px)</code>，不留余量会被段顶部截掉）<br>
+      底部操作按钮行（出牌 / 弃牌 / 按点排序 / 按花排序），<b>右 padding ≥ 130px 给牌堆腾位置</b>
+    </td>
+  </tr>
+</table>
+
+<div class="callout warn">
+  <strong>⛔️ 手牌不要叠层</strong>
+  v4 早期试过 <code>margin-right: -45px</code> 叠层（仿官方"扇形手牌"），但选中牌时点数被相邻牌遮挡，体验差。<b>v4 最终方案：gap: 8px 真并排</b>，配合 100×145 小尺寸，8 张牌总宽 ≈ 856px，主区放得下。
+</div>
+
+<div class="callout tip">
+  <strong>📐 3 段之间的视觉分隔</strong>
+  <b>段之间不加任何 border 分割线</b>。仅靠背景色微差区分：第 1 段 <code>rgba(15,23,42,.6)</code>、第 2 段 <code>rgba(5,8,24,.5)</code>、第 3 段沿用 main 底色。加 1px 蓝线会让 100vh 严格三等分破功（多出 2 像素溢出 + 不像官方）。
+</div>
+
+<h3>4.4 牌堆 <span class="lock">v7 关键调整：absolute 内嵌出牌区</span></h3>
+
+<div class="callout warn">
+  <strong>⛔️ v6 翻车 → v7 调整：牌堆必须 absolute 定位于出牌区段内，不能 fixed 浮 viewport</strong>
+  v6 用 <code>position: fixed; bottom: 24px; right: 20px</code>，结果商店覆盖层把它盖住、窄屏被 grid 推到画布外、被认为「抓牌区被遮挡」。<b>v7 把牌堆挪到第 2 段（出牌区 PlayArea）右下角 absolute</b>，跟出牌区一起被 main-area grid 严格约束，绝不外漂、不被遮挡。
+</div>
+
+<ul>
+  <li><b>位置</b>：<b>第 2 段（出牌区 PlayArea）右下角</b>，<code>position: absolute; bottom: 16px; right: 16px</code></li>
+  <li><b>父容器</b>：PlayArea 容器必须设 <code>position: relative</code> 让牌堆能正确锚定（同时是发牌动画的飞行起点）</li>
+  <li><b>尺寸</b>：宽 90px、高 130px，3 层堆叠紫色花纹方块（同 v5）</li>
+  <li><b>计数</b>：下方 <code>{{ deck.length }}/52</code>（VT323 14px 金）</li>
+  <li><b>z-index: 2</b>（在 PlayArea 内浮上来，但不脱离 grid）+ <code>pointer-events: none</code></li>
+  <li><b>商店 / 结束覆盖层出现时</b>：牌堆随出牌区一起隐藏（不要让 fixed 牌堆从 Modal 后冒出来）</li>
+  <li><b>发牌动画必须真的从这里出发</b>：用 Vue Transition JS hooks + <code>getBoundingClientRect()</code> 取牌堆当前位置作为飞行起点</li>
+</ul>
+
+<h3>4.5 字体使用规则 <span class="lock">三类分工，硬锁定</span></h3>
+
+<table>
+  <tr><th>字体</th><th>用途</th><th>典型用例</th></tr>
+  <tr>
+    <td><b>Inter + PingFang SC + Microsoft YaHei</b><br>（中文友好无衬线）</td>
+    <td>所有<b>中文标签 / 中文按钮 / 中文标题</b></td>
+    <td>
+      sidebar 所有标签（盲注 / 目标分 / 当前分 / 剩余手数 / 剩余弃牌 / 金币 / 奖励）：<b>13px</b><br>
+      盲注名（小/中/大盲注）/ 牌型名 / 段标题（手牌）：<b>14-18px font-weight 700-800</b><br>
+      商店 / 结束页大标题：<b>28-32px font-weight 800-900</b><br>
+      按钮（出牌 / 弃牌 / 排序 / 重新开始 / 跳过）：<b>14-16px font-weight 800</b>
+    </td>
+  </tr>
+  <tr>
+    <td><b>VT323</b><br>（复古液晶字）</td>
+    <td>所有<b>数字大屏</b></td>
+    <td>
+      目标分：28px / Round Score：≥ 40px / 金币：44px / Hands & Discards：34px / 牌堆计数：14px<br>
+      <b>不要用 VT323 渲染中文</b>（fallback 难看）
+    </td>
+  </tr>
+  <tr>
+    <td><b>Press Start 2P</b><br>（英文像素字 · Balatro 风格标志）</td>
+    <td>仅用于 <b>纯英文装饰 / Logo / chips/mult 块大数字</b></td>
+    <td>
+      Logo「🃏 小丑牌」：18px + 2px 黑硬投影<br>
+      段标题「JOKERS · X/5」：14px + 2px 黑硬投影<br>
+      货币符号 $：14px<br>
+      chips / mult 块大数字：≥ 28px<br>
+      <b>不要用 Press Start 2P 渲染中文</b>（中文 fallback 到 monospace 会糊，v3/v4 早期踩过坑）
+    </td>
+  </tr>
+</table>
+
+<h3>4.6 按钮规范 <span class="lock">v4 最终版</span></h3>
+
+<p>所有按钮统一基础样式 <code>.px-btn</code>：</p>
+<ul>
+  <li><b>min-height: 52px</b>，padding 14×26px（敦实，不要扁）</li>
+  <li><b>font-family: Inter + PingFang SC + Microsoft YaHei</b>（中文友好）</li>
+  <li><b>font-size: 16px</b>（出牌/弃牌主按钮）/ <b>14px</b>（排序次按钮）/ <b>15px</b>（重新开始）</li>
+  <li>font-weight 800、letter-spacing 1-1.5px、text-shadow 黑色描边</li>
+  <li>border-radius 12px、border 2px solid rgba(0,0,0,.35)</li>
+  <li><b>多层渐变</b>：<code>linear-gradient(180deg, 顶亮 0%, 正色 50%, 底深 100%)</code></li>
+  <li><b>多层 box-shadow</b>：hard shadow（0 5px 0 深色）+ 柔光晕（0 8px 18px 同色 30%）+ inset 顶部高光</li>
+  <li><b>hover</b>：<code>translateY(-2px) + filter: brightness(1.1) saturate(1.15)</code></li>
+  <li><b>active</b>：<code>translateY(2px) + filter: brightness(0.92)</code></li>
+  <li><b>disabled</b>：opacity 0.45 + 不可点 + grayscale 0.3</li>
+  <li>过渡 <code>transition: all 0.15s ease</code></li>
+</ul>
+
+<p><b>按钮颜色按职责：</b></p>
+<ul>
+  <li><b>出牌</b>：翠绿渐变 <code>#34d399 → #10b981 → #059669</code>（最显眼）</li>
+  <li><b>弃牌 / 重新开始</b>：朱红渐变 <code>#fb7185/#f87171 → #ef4444 → #b91c1c/#dc2626</code></li>
+  <li><b>排序</b>：紫蓝 ghost <code>rgba(99,102,241,.28) → rgba(67,56,202,.20)</code> + 紫蓝边</li>
+  <li><b>设置</b>：橙色 <code>#fbbf24 → #d97706</code></li>
+  <li><b>商店跳过</b>：蓝紫 <code>#818cf8 → #4338ca</code></li>
+</ul>
+
+<h3>4.7 商店界面（<code>shop</code> 状态）</h3>
+<ul>
+  <li>顶部居中标题 <code>商店</code>（Inter 28px bold 金）+ 副标题 <code>通关奖励到账！金币 $X · Joker 槽 X/5</code></li>
+  <li>中间 3 张随机 Joker 横排（用 JokerCard 渲染，跟对局中尺寸一致 140×200），每张下方按 4.6 规范的<b>购买按钮（宽度 140px 跟 JokerCard 等宽）</b>，按钮高度 ≥ 44px、文字 14px</li>
+  <li>右下 <code>跳过 →</code> 蓝紫按钮（≥ 160px 宽）</li>
+  <li>左 sidebar 仍然显示（让玩家看到金币 / Joker 状态）</li>
+  <li>右主区手牌 / 出牌按钮隐藏</li>
+</ul>
+
+<h3>4.8 结束界面（<code>won</code> / <code>lost</code>）</h3>
+<ul>
+  <li>居中面板。<code>won</code> 时金色 <code>通关全部</code>（Inter 32px black 800-900）；<code>lost</code> 时红色 <code>失败</code></li>
+  <li>显示最终金币 + 持有 Joker 列表（标签 <code>持有的 Joker</code> Inter 13px 灰）</li>
+  <li>底部 <code>重新开始</code> 按钮（4.6 规范）</li>
+</ul>
+
+<h2>五、关键交互与动效</h2>
+
+<h3>5.1 出牌计分动画时间线 <span class="lock">v7 本轮全做（含飞牌 + 飞字）</span></h3>
+
+<div class="callout gold">
+  <strong>🎬 v6 → v7 调整：4 类动效全部前置到本轮</strong>
+  v5 把飞牌 / 飞字 / 计分粒子留到第 3 轮，v6 跟着砍。学员反馈「太 low」。<b>v7 把以下 4 类动效全部纳入本轮必做</b>：① 选中牌飞向出牌区；② 出牌时逐张高亮 + 蓝色 chips 飞字；③ Joker 触发金光 + 红色 mult 飞字；④ 发牌从牌堆飞入手牌。<b>第 3 轮只剩配乐 + 粒子升级</b>（通关撒金币、爆分粒子等更高级的特效）。
+</div>
+
+<p>出牌不是「按一下分数瞬间变」，而是按以下步骤逐步推进，让玩家看清每一步：</p>
+<ol>
+  <li><b>必做</b>　选中的牌（1-5 张）<b>飞向出牌区中央位置</b>（≈350ms）—— 用 Vue Transition JS hooks + GSAP/setTimeout 实现，clone 元素 + fixed 定位 + transform 飞过去</li>
+  <li><b>必做</b>　显示牌型名 + sidebar 锁定初始 chips / mult（牌型基础值）</li>
+  <li><b>必做</b>　从左到右逐张高亮（每张 150ms，上移 18px + 蓝光），sidebar chips 跳动累加；<b>每张牌上方飞出蓝色 <code>+N</code> 字向 chips 块</b>（飞行 400ms，淡出消失）</li>
+  <li><b>必做</b>　按 ownedJokers 顺序，被触发的 Joker 上移 + 金光（800ms）；<b>每个 Joker 上方飞出红色 <code>+N Mult</code> 或 <code>×N</code> 字向 mult 块</b>（飞行 400ms，淡出消失）</li>
+  <li><b>必做</b>　HAND 块整体闪一下，中央弹出大金字 <code>chips × mult = score</code>（停留 800ms）</li>
+  <li><b>必做</b>　blindScore 累加（用 RAF 数字插值跳动 ≈ 600ms），handsLeft - 1</li>
+  <li><b>必做</b>　淡出出牌区，<b>新牌从牌堆位置飞入手牌槽位</b>（每张错峰 60ms，每张飞行 400ms）</li>
+</ol>
+
+<p><b>时间总轴</b>：1 飞牌 350ms → 2 设牌型 ≤ 200ms → 3 逐张高亮 750ms（5 张 × 150ms）→ 4 Joker 触发 300ms × N → 5 公式爆出 800ms → 6 blindScore 累加 600ms（与 5 重叠）→ 7 补牌发牌 400ms → 共约 <b>2.6-3.2 秒一手</b>（取决于 Joker 数量）。</p>
+
+<h3>5.2 发牌动画 <span class="lock">v7 本轮必做</span></h3>
+<p>所有新牌（初始 8 张 / 出牌后补 / 弃牌后补 / 新一关初始）必须<b>从牌堆当前位置</b>（PlayArea 右下角）飞入手牌目标位置（不能原地淡入），每张错峰 60ms，飞行 400ms，用 Vue JS hooks + <code>getBoundingClientRect()</code> 实时算偏移。</p>
+
+<h3>5.3 Joker 触发反馈</h3>
+<p>被触发的 Joker 卡<b>必须有视觉反馈</b>：<code>translateY(-18px) + scale(1.15)</code> + 16px 金光 <code>box-shadow</code> + 持续约 800ms 后恢复（不要瞬切回去，加 ease-out 过渡）。</p>
+
+<h3>5.4 设置面板 <span class="lock">v7 本轮必做</span></h3>
+
+<p><b>触发</b>：右上角齿轮按钮 <code>⚙️</code>（绝对定位 <code>top: 16px; right: 16px</code> 浮在 viewport 右上）。点击打开设置 Modal。</p>
+
+<p><b>设置 Modal 包含以下 4 项</b>（仅做 UI + 状态写 localStorage，第 3 轮再接音频）：</p>
+
+<table>
+  <tr><th>项</th><th>类型</th><th>默认值</th><th>说明</th></tr>
+  <tr><td>BGM 音量</td><td>slider 0-100</td><td>50</td><td>第 3 轮接 Howler 后生效，本轮仅存值</td></tr>
+  <tr><td>SFX 音量</td><td>slider 0-100</td><td>70</td><td>第 3 轮接 Howler 后生效</td></tr>
+  <tr><td>动画速度</td><td>radio：慢 / 普通 / 快</td><td>普通</td><td>影响 §5.1 时间线全局倍率：慢 1.5×、普通 1×、快 0.6×</td></tr>
+  <tr><td>显示出牌区公式预览</td><td>toggle</td><td>开</td><td>未出牌时是否显示 <code>chips × mult = score</code> 预估</td></tr>
+</table>
+
+<p><b>Modal 视觉</b>：居中 600×400 卡片，深蓝水纹底 + 蓝边框 + 圆角 14px。底部 <code>关闭</code> 按钮（蓝紫 ghost 按钮，4.6 规范）。</p>
+
+<p><b>状态持久化</b>：所有设置写 <code>localStorage</code> key = <code>balatro.settings</code>，启动时读回填。</p>
+
+<h3>5.5 AI 出牌助手 <span class="lock">v7 本轮必做（本地启发式，不接 LLM）</span></h3>
+
+<p><b>触发</b>：第 3 段（手牌段）操作按钮行最右侧加一颗 <b>紫色霓虹按钮</b> <code>🤖 AI 出牌</code>（4.6 规范的「设置」色变体：紫 <code>#a855f7 → #7e22ce</code> 渐变）。</p>
+
+<p><b>行为</b>：点击后：</p>
+<ol>
+  <li>立即触发 AI 思考态：按钮文案变 <code>🤔 AI 思考中…</code> + 按钮 disabled + 紫色脉冲呼吸动画（≈800ms）</li>
+  <li>本地枚举 <code>C(8,5) + C(8,4) + C(8,3) + C(8,2) + C(8,1) = 218 种</code>子集组合（手牌不足 8 张时按实际枚举）</li>
+  <li>对每种子集模拟计算最终得分（含当前 ownedJokers 触发），取得分最高的一组</li>
+  <li>把这组牌设为选中态（已选牌可见 translateY 上移），延迟 200ms 后自动调用 <code>handlePlay()</code></li>
+  <li>按钮恢复 <code>🤖 AI 出牌</code>，下一手可再点</li>
+</ol>
+
+<p><b>降级策略</b>：手牌 ≤ 5 张时不枚举，直接全选打出。</p>
+
+<p><b>AI 也可参与商店</b>：商店阶段 AI 出牌按钮变为 <code>🤖 AI 建议</code>（不强制买，仅高亮一张性价比最高的 Joker —— 按 <code>每 $1 单位增益</code> 估算，price/期望加分 最低者）。</p>
+
+<p><b>边界</b>：本轮 AI 只用启发式枚举，<b>不接 DeepSeek、不联网、零 API key 依赖</b>；第 6 轮再加 DeepSeek 真 LLM 接入。</p>
+
+<h2>六、文案锁定</h2>
+
+<table>
+  <tr><th>位置</th><th>文案（原样使用）</th></tr>
+  <tr><td>顶部标题</td><td><code>🃏 小丑牌</code></td></tr>
+  <tr><td>左 sidebar HUD 标签</td><td><code>盲注</code> · <code>目标分</code> · <code>当前分</code>（或 <code>Round Score</code>）· <code>剩余手数</code> · <code>剩余弃牌</code> · <code>金币</code></td></tr>
+  <tr><td>Joker 槽栏</td><td><code>JOKERS · X/5</code> / 空槽中央显示 <code>+</code>（24px 灰）+ 下方文字 <code>空槽</code>（12px 灰）</td></tr>
+  <tr><td>手牌区</td><td><code>手牌</code>（左）/ <code>已选 X / 5 张</code>（右）</td></tr>
+  <tr><td>出牌区空态提示</td><td><code>选择手牌组成牌型（1-5 张）</code>（居中、灰、透明度 0.55）</td></tr>
+  <tr><td>出牌按钮</td><td><code>出牌 (X)</code>（X 是当前选中数；为 0 时按钮 disabled）</td></tr>
+  <tr><td>弃牌按钮</td><td><code>弃牌 (X)</code>（X 是<b>剩余弃牌数</b>，不是选中数；选中=0 或剩余=0 时 disabled）</td></tr>
+  <tr><td>排序按钮</td><td><code>按点排序</code> / <code>按花排序</code></td></tr>
+  <tr><td>商店标题</td><td><code>商店</code></td></tr>
+  <tr><td>商店副标题</td><td><code>通关奖励到账！金币 $X · Joker 槽 X/5</code></td></tr>
+  <tr><td>商店购买按钮</td><td><code>购买 $X</code> / <code>已售出</code> / <code>钱不够</code> / <code>槽满了</code></td></tr>
+  <tr><td>商店跳过按钮</td><td><code>跳过 →</code></td></tr>
+  <tr><td>结束标题</td><td><code>🎉 通关全部</code> / <code>💀 失败</code></td></tr>
+  <tr><td>结束按钮</td><td><code>重新开始</code></td></tr>
+  <tr><td>右上角设置按钮</td><td><code>⚙️</code>（无文字，仅图标，44×44px 圆角按钮）</td></tr>
+  <tr><td>设置 Modal 标题</td><td><code>设置</code>（Inter 24px bold 金）</td></tr>
+  <tr><td>设置项</td><td><code>BGM 音量</code> / <code>SFX 音量</code> / <code>动画速度</code>（慢 / 普通 / 快） / <code>显示出牌公式预览</code></td></tr>
+  <tr><td>设置 Modal 关闭按钮</td><td><code>关闭</code></td></tr>
+  <tr><td>AI 出牌按钮（对局中）</td><td><code>🤖 AI 出牌</code>（紫色，4.6 规范）</td></tr>
+  <tr><td>AI 思考中态</td><td><code>🤔 AI 思考中…</code>（按钮 disabled + 脉冲动画）</td></tr>
+  <tr><td>AI 建议按钮（商店中）</td><td><code>🤖 AI 建议</code></td></tr>
+</table>
+
+<h2>七、范围边界（本轮<b>不做</b>）</h2>
+
+<div class="callout warn">
+  <strong>⛔️ 以下内容一律不做，留给后续轮次</strong>
+</div>
+
+<ul>
+  <li><b>BGM / SFX 真实接音频</b>（Howler 加载 mp3、触发播放）→ 第 3 轮（本轮设置面板已经把 BGM/SFX 滑块做出来，状态写 localStorage，第 3 轮只补接线）</li>
+  <li><b>粒子特效升级</b>（计分粒子爆炸 / 通关撒金币 / 进商店烟花）→ 第 3 轮（本轮的 4 类动效已经够，第 3 轮只是更高级粒子）</li>
+  <li><b>装 agent-browser 跑自动化验收</b> → 第 4 轮</li>
+  <li><b>Tauri 跨端打包</b>（Mac / Win / Android / iOS 五端）→ 第 5 轮</li>
+  <li><b>DeepSeek 真 LLM 接入</b>（联网 prompt + JSON 解析 + 双供应商配置）→ 第 6 轮（本轮 AI 按钮已经做出来，第 6 轮只是把启发式换成真 LLM）</li>
+  <li><b>商店刷新按钮 / 出售 Joker / Tarot / Planet 卡 / 多周目 / 难度选择 / 存档</b> → 本课程不做</li>
+  <li><b>第 7 张及以上 Joker</b>（候选库严格 6 张）</li>
+</ul>
+
+<h2>八、验收清单</h2>
+
+<h3>初始状态</h3>
+<ul class="checklist">
+  <li>页面打开即可玩，不需要登录</li>
+  <li>HUD 显示：「第 1/3 关 · 🔵 小盲注 · 目标 300 · 当前 0 · 4 手 · 3 弃 · $0」</li>
+  <li>Joker 槽 5 个<b>全空</b>（不是预置 Joker）</li>
+  <li>8 张手牌从右下角牌堆飞入</li>
+  <li>出牌按钮在未选时灰色禁用，弃牌按钮在未选时灰色禁用</li>
+</ul>
+
+<h3>出牌循环</h3>
+<ul class="checklist">
+  <li>选 1-5 张点出牌：被选牌飞到 Played hand 区，按时间线逐张高亮 + 浮字累加 + 最后爆出总分</li>
+  <li>分数累加到 Round Score，剩余手数 -1，新牌从右下角飞入补满 8 张</li>
+  <li>累计 ≥ 300 分 → 自动进商店，金币变成 $5-$9（取决于剩多少手）</li>
+  <li>4 手用完没达标 → 「💀 失败」+ 显示卡在第 1 关</li>
+</ul>
+
+<h3>商店循环</h3>
+<ul class="checklist">
+  <li>商店显示 3 张随机 Joker，按钮文案 / 灰显逻辑符合 3.3</li>
+  <li>买完一张 → Joker 进槽位，金币扣减，按钮变「已售出」</li>
+  <li>「跳过 →」按钮永远可点，点完进下一关</li>
+  <li>第 2 关目标 500、第 3 关目标 800</li>
+  <li>3 关全过 → 「🎉 通关全部」+ 显示金币 + 持有 Joker</li>
+</ul>
+
+<h3>Joker 触发</h3>
+<ul class="checklist">
+  <li>持有「梅花爱好者」时打含 ♣ 的牌 → 卡片金光 + 倍率 ×4</li>
+  <li>持有「皇家头牌」时打含 J/Q/K → 倍率 ×10</li>
+  <li>持有「同花顺大师」时打同花顺 → 倍率 +50</li>
+  <li>多张 Joker 同时符合条件 → 按持有顺序依次叠加生效</li>
+</ul>
+
+<h3>弃牌</h3>
+<ul class="checklist">
+  <li>选 1-5 张 + 还有弃牌次数 → 「弃牌 (X)」按钮可点</li>
+  <li>弃牌后：被选牌移除 → 从右下角牌堆补新牌到 8 张</li>
+  <li>handsLeft <b>不变</b>，discardsLeft -1，Round Score 不变</li>
+</ul>
+
+<h3>视觉</h3>
+<ul class="checklist">
+  <li>整体配色：深蓝水纹（不是绿毛毡 / 不是浅灰白 / 不是紫色单调）</li>
+  <li>左 sidebar 是亮蓝色面板（参考 DESIGN.html）</li>
+  <li>HAND 计分块：左半边水彩蓝 chips、右半边火焰红 mult</li>
+  <li>Joker 卡：纸黄色底，按稀有度有蓝/绿/红/紫四角内描边</li>
+  <li>所有英文装饰字体（Logo / 段标题 / chips·mult 数字）使用 Press Start 2P</li>
+  <li>所有数字大屏（Round Score / 目标分 / 金币 / 手数 / 弃牌）使用 VT323</li>
+  <li>所有中文（标签 / 按钮 / 标题）使用 Inter + PingFang SC（不要 Press Start 2P）</li>
+  <li>整页 100vh 充满全屏，<b>不留大块空白</b></li>
+</ul>
+
+<h3>v7 新增 · 动效</h3>
+<ul class="checklist">
+  <li>初始 8 张 + 出牌后补牌 + 弃牌后补牌 + 新关初始牌：<b>必须从牌堆位置飞入</b>（不是淡入），每张错峰 60ms</li>
+  <li>出牌时选中的牌<b>飞向出牌区中央</b>（≈350ms），不是瞬切</li>
+  <li>出牌后：逐张高亮 + 蓝色 chips 飞字 + 红色 mult 飞字（被 Joker 触发时）</li>
+  <li>计分爆出：中央显示 <code>chips × mult = score</code> 大字（≥ 800ms 停留）</li>
+  <li>Joker 触发：上移 + 金光 + 800ms 后恢复</li>
+  <li>blindScore 用 RAF 数字插值跳动累加（不是瞬切）</li>
+</ul>
+
+<h3>v7 新增 · 设置面板</h3>
+<ul class="checklist">
+  <li>右上角 <code>⚙️</code> 按钮可见 + 可点</li>
+  <li>点开 Modal 居中显示 4 项：BGM 音量 / SFX 音量 / 动画速度（慢/普通/快）/ 显示出牌公式预览</li>
+  <li>动画速度切换后，所有动效 §5.1 时间线全局倍率立刻生效（慢 1.5×、普通 1×、快 0.6×）</li>
+  <li>「显示出牌公式预览」开启时，出牌区未出牌空态显示 <code>chips × mult = score</code> 预估；关闭时显示原空态文字</li>
+  <li>所有设置写 localStorage（key = <code>balatro.settings</code>），刷新页面后保持</li>
+  <li>点关闭按钮或点 Modal 外背景蒙层关 Modal</li>
+</ul>
+
+<h3>v7 新增 · AI 出牌</h3>
+<ul class="checklist">
+  <li>第 3 段最右侧有紫色 <code>🤖 AI 出牌</code> 按钮（4.6 规范的紫色变体）</li>
+  <li>点击后：按钮变 <code>🤔 AI 思考中…</code> + disabled + 紫色脉冲呼吸动画</li>
+  <li>≈800ms 后自动选中本地枚举出的最优组合（高亮选中态可见）</li>
+  <li>再延迟 200ms 自动调 handlePlay，走 §5.1 完整动画时间线</li>
+  <li>下一手按钮恢复可点</li>
+  <li>持有「红心收藏家」+ 手牌有 ♥ 时，AI 应优先组合含 ♥ 的牌</li>
+  <li>持有「同花顺大师」+ 手牌可组同花顺时，AI 应组同花顺</li>
+  <li>商店阶段按钮变 <code>🤖 AI 建议</code>，点击高亮性价比最高的 Joker（不强制买）</li>
+</ul>
+
+<h3>v7 调整 · 牌堆位置</h3>
+<ul class="checklist">
+  <li>牌堆挂在第 2 段（出牌区）内右下角，<code>position: absolute; bottom: 16px; right: 16px</code></li>
+  <li>商店覆盖层出现时，牌堆<b>跟出牌区一起被遮罩</b>（不能从 Modal 后冒出来）</li>
+  <li>窄屏（&lt; 1280px）时牌堆<b>不能</b>飘到画布外（v6 翻车点）</li>
+</ul>
+
+<h2>九、依赖与外部资源</h2>
+
+<ul>
+  <li>Press Start 2P / VT323 / Inter 字体（Google Fonts 即可，免本地安装）</li>
+  <li>无需后端、无需登录、无需注册、<b>无需 API key</b>（AI 用本地启发式，不联网）</li>
+  <li>静态资源（Joker 图片占位）暂用 emoji 字符 + CSS 占位，<b>不依赖外部图片资源</b>（PNG 替换放到后续轮次）</li>
+  <li><b>音频文件</b>本轮不需要（设置面板的 BGM/SFX 滑块只存值，第 3 轮再接 Howler 加载 mp3）</li>
+</ul>
+
+<h2>十、给 AI 实施者的硬约束（v5 + v6 翻车点汇总） <span class="lock">必读 · 一条都不能省</span></h2>
+
+<div class="callout warn">
+  <strong>⛔️ 以下 12 条全部踩过坑，必须严格遵守</strong>
+</div>
+
+<h3>10.1 布局类（v5 + v6 翻车）</h3>
+<ol>
+  <li><b>sidebar 必须真渲染</b>：&lt;SideBar /&gt; 必须挂上，左侧 7-8 块面板全部出现（v5 翻车点：漏挂导致左侧整片空白）</li>
+  <li><b>main-area 不要 padding-right</b>：grid 自身管段，加 padding-right 会让 fixed 元素浮在画布外（v5 翻车点）</li>
+  <li><b>main-area grid 不要 1fr 1fr 1fr 等分</b>：手牌 + 按钮段需要至少 280px，等分会让按钮溢出 viewport。<b>v7 锁定</b>：<code>grid-template-rows: 230px 1fr 280px</code>（Joker 230 / 出牌 1fr / 手牌+按钮 280）</li>
+  <li><b>牌堆必须 absolute 内嵌出牌区</b>，<b>不要 fixed</b>（v6 翻车点，详见 §4.4）</li>
+</ol>
+
+<h3>10.2 状态机类（v6 翻车）</h3>
+<ol start="5">
+  <li><b>大盲注通关 → won，不进商店</b>：playCards 通关判断必须先检查 <code>currentBlindIndex &gt;= BLINDS.length - 1</code>，等于 true 则 <code>gameState = 'won'</code>，不能无脑 enterShop（v6 翻车点）</li>
+  <li><b>出牌按钮 X = 选中数</b> / <b>弃牌按钮 X = 剩余弃牌数</b>（v5 翻车点：写反了）</li>
+</ol>
+
+<h3>10.3 视觉类（v5 + v6 翻车）</h3>
+<ol start="7">
+  <li><b>背景渐变不要偏紫</b>：<code>#2a1240</code> 紫色调要换成深蓝 <code>#0a1438 → #1a2858 → #0a1438</code>（v6 翻车点）</li>
+  <li><b>「— 选牌出牌 —」灰色不要蓝色</b>：未选时 <code>.hand-type-name.empty</code> 用 <code>var(--muted)</code>（v6 翻车点）</li>
+  <li><b>Press Start 2P 不要渲染中文</b>，VT323 不要渲染中文，中文统一用 Inter + PingFang SC（v3/v4 翻车点）</li>
+</ol>
+
+<h3>10.4 部署类（v5 翻车）</h3>
+<ol start="10">
+  <li><b>GitHub Pages 必须用 workflow 模式</b>，不能 legacy gh-pages 分支模式。命令：<code>gh api -X PUT /repos/&lt;user&gt;/&lt;repo&gt;/pages -f build_type=workflow</code></li>
+  <li><b>vite.config.js base 自适应</b>：<code>base: process.env.DEPLOY_TARGET === 'pages' ? '/&lt;repo-name&gt;/' : './'</code></li>
+  <li><b>构建必过</b>：<code>npm run build</code> 必须 0 error 0 warning（lint 警告也清掉）</li>
+</ol>
+
+<h2>十一、工程化约束（v7 新增 · 给学员的稳定运行保障）</h2>
+
+<div class="callout gold">
+  <strong>🎯 学员场景目标：一次性跑完，不需要中途干预</strong>
+  本提示词将直接交付给零基础学员。学员只会做一件事：把这份 PRD + DESIGN + 实施指引喂给 Claude Code，按指引顺序触发。<b>提示词内必须有的工程化要求</b>：
+</div>
+
+<h3>11.1 每轮一个 commit</h3>
+<p>本轮（第 1 轮）实施完成后必须产生<b>恰好 1 个 commit</b>（如果中间被卡住分多个 commit 修复，最终 squash 成 1 个）。后 5 轮同样规则：<b>1 轮 = 1 commit</b>，方便 <code>git log</code> 看出"每一轮发生了什么"。</p>
+
+<p><b>commit message 格式</b>：<code>feat: 第 N 轮 - 主题（v1.X.0）</code>，例如：</p>
+<ul>
+  <li>第 1 轮：<code>feat: 第 1 轮 - 核心循环 + 设置 + 动效 + AI（v1.0.0）</code></li>
+  <li>第 3 轮：<code>feat: 第 3 轮 - 配乐 + 粒子升级（v1.2.0）</code></li>
+  <li>第 5 轮：<code>feat: 第 5 轮 - Tauri 跨端打包（v2.0.0）</code></li>
+</ul>
+
+<h3>11.2 不要中途问学员问题</h3>
+<p>Agent 拿到本提示词时<b>不允许中途打断学员要决策</b>。所有歧义在 PRD 内已锁定（玩法 / 数值 / 文案 / 视觉 / 动效曲线全部锁死）。如果 agent 觉得有歧义，<b>按 §10 硬约束 + §6 文案锁定 + §3 模块数值锁定</b>三处兜底，按既有锁定值走，不要问"用 A 还是 B"。</p>
+
+<h3>11.3 一锅端 fullstack-engineer agent</h3>
+<p>实施阶段强制走 <code>fullstack-engineer</code> 子代理（如果学员装了 Superpowers，主 agent 自动派）。<b>不要</b>主 agent 自己写代码（会污染主上下文 + 速度慢）。让 fullstack-engineer 在小黑屋里 grep / read / write / 跑 build，结论返回主窗口。</p>
+
+<h3>11.4 提速：用并行 + 跳过冗余确认</h3>
+<ul>
+  <li><b>所有独立 Read / Bash</b>：单条消息内并行（不要串行）</li>
+  <li><b>每轮跳过 "/cc-echo 复述"</b>：学员已经过第 1 轮，第 2-6 轮直接喂提示词即开干（第 1 轮保留 cc-echo 是为初次心智模型对齐）</li>
+  <li><b>build 校验放最后</b>：不要每改一个文件 build 一次，全部改完再 <code>npm install &amp;&amp; npm run build</code> 一次性检验</li>
+  <li><b>不写中间总结文档</b>：除 CLAUDE.md / README.md 外不要造其他 .md 文件，避免污染产出</li>
+</ul>
+
+<h3>11.5 时长预算（参考）</h3>
+<table>
+  <tr><th>轮次</th><th>提示词处理</th><th>fullstack-engineer 实施</th><th>build + push + Pages 部署</th><th>总计</th></tr>
+  <tr><td>第 1 轮（最重）</td><td>3-5 min</td><td>25-35 min</td><td>3-5 min</td><td><b>≤ 45 min</b></td></tr>
+  <tr><td>第 2 轮（学员动手）</td><td>2 min</td><td>5-10 min（小改动）</td><td>1 min</td><td><b>≤ 15 min</b></td></tr>
+  <tr><td>第 3 轮（配乐+粒子）</td><td>2 min</td><td>15-20 min</td><td>2 min</td><td><b>≤ 25 min</b></td></tr>
+  <tr><td>第 4 轮（agent-browser）</td><td>1 min</td><td>5 min（仅装 skill 不写代码）</td><td>0</td><td><b>≤ 10 min</b></td></tr>
+  <tr><td>第 5 轮（Tauri）</td><td>2 min</td><td>10-15 min</td><td>3 min（跨端打包慢）</td><td><b>≤ 25 min</b></td></tr>
+  <tr><td>第 6 轮（DeepSeek）</td><td>2 min</td><td>10-15 min</td><td>2 min</td><td><b>≤ 20 min</b></td></tr>
+</table>
+<p><b>6 轮总时长目标 ≤ 2.5 小时</b>（含学员阅读 + 验收时间），单堂课能跑完。</p>
+
+<hr>
+
+<p style="text-align:center;color:var(--muted);font-size:13px;">
+本 PRD 由产品经理 AI 同事产出。接下来由设计师 AI 同事产出 DESIGN，再由全栈工程师 AI 同事按 PRD + DESIGN 实施代码。
+</p>
+
+<div class="footer">
+  小丑牌教学 · B2 · 第 1 轮 PRD · v7（v5 + 设置 + 动效 + AI 三块前置 + 工程化约束）
+</div>
+
+</div>
+</body>
+</html>

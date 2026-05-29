@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>第 1 轮 · DESIGN · 小丑牌核心循环（设计规范）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     Balatro 蓝色水纹设计稿 · 官方风格还原
+     参考官方截图：深蓝水纹背景 + 蓝色 sidebar + chips/mult 水彩块
+     ============================================================ */
+
+  :root {
+    /* 背景层 */
+    --bg-deep:     #0a1438;
+    --bg-water:    #1a2858;
+    --bg-glow:     #2d4080;
+
+    /* 左 sidebar */
+    --sb-blue:    #4a6bff;
+    --sb-blue-dk: #2d4080;
+    --sb-panel:   #1a2858;
+    --inset:      #050818;
+
+    /* Chips × Mult（核心！） */
+    --chips-from: #4dd6ff;
+    --chips-to:   #2196f3;
+    --mult-from:  #ff8844;
+    --mult-to:    #ff3344;
+
+    /* 金币 / 按钮 */
+    --gold:       #ffc857;
+    --money:      #ffb030;
+    --btn-red:    #ff3838;
+    --btn-orange: #ff8800;
+    --btn-blue:   #4a6bff;
+    --btn-green:  #62d18b;
+    --btn-discard:#ff5544;
+
+    /* 文字 */
+    --text:       #ffffff;
+    --text-dim:   #c9d2e8;
+    --muted:      #8a9bbf;
+
+    /* Joker 卡纸 */
+    --paper-1:    #fff8e1;
+    --paper-2:    #f7e9c4;
+    --paper-3:    #e9d6a4;
+    --card-edge:  #1a0f24;
+
+    /* 字体 */
+    --pixel:   'Press Start 2P', monospace;
+    --display: 'VT323', monospace;
+    --sans:    'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,64,128,.6), transparent 70%),
+      radial-gradient(ellipse 120% 80% at 30% 70%, rgba(74,107,255,.15), transparent 60%),
+      repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 2px, transparent 2px 4px),
+      linear-gradient(135deg, #0a1438 0%, #1a2858 50%, #0a1438 100%);
+    background-attachment: fixed;
+  }
+
+  /* ===== Doc Bar ===== */
+  .doc-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(5,8,24,.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(74,107,255,.3);
+    padding: 12px 28px;
+    display: flex; gap: 18px; align-items: center;
+  }
+  .doc-bar h1 {
+    font-family: var(--pixel);
+    font-size: 11px;
+    margin: 0;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .doc-bar .sub { color: var(--muted); font-size: 12px; }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+    display: flex; flex-direction: column;
+    gap: 48px;
+  }
+
+  /* ===== Section ===== */
+  .section {
+    background: linear-gradient(180deg, #111e44, #0a1438);
+    border: 1px solid rgba(74,107,255,.3);
+    border-radius: 18px;
+    box-shadow: 0 12px 24px rgba(0,0,0,.5);
+    overflow: hidden;
+  }
+  .section-head {
+    padding: 14px 22px;
+    border-bottom: 1px solid rgba(74,107,255,.2);
+    background: linear-gradient(90deg, rgba(74,107,255,.2), transparent);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-head .num {
+    width: 26px; height: 26px; border-radius: 6px;
+    background: var(--gold); color: #050818;
+    display: grid; place-items: center;
+    font-family: var(--pixel); font-size: 10px;
+  }
+  .section-head h2 {
+    margin: 0; font-family: var(--pixel); font-size: 13px;
+    color: var(--gold); letter-spacing: 1px;
+  }
+  .section-head .tag { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .section-body { padding: 28px 24px; }
+
+  /* ===== Token 表格 ===== */
+  .token-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .token-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: rgba(74,107,255,.08);
+    border: 1px solid rgba(74,107,255,.2);
+    border-radius: 8px;
+  }
+  .token-swatch {
+    width: 32px; height: 32px; border-radius: 6px; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,.1);
+  }
+  .token-name {
+    font-family: var(--pixel); font-size: 7px; color: var(--muted); letter-spacing: 0.5px;
+  }
+  .token-val { font-size: 11px; font-weight: 700; color: var(--text); }
+
+  /* ===== 布局示意 ===== */
+  .layout-demo {
+    display: flex;
+    height: 520px;
+    border: 2px solid rgba(74,107,255,.4);
+    border-radius: 14px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(45,64,128,.4), transparent 70%),
+      #0a1438;
+  }
+
+  /* Sidebar（示意尺寸，实际游戏代码用 width: min(28vw, 480px); min-width: 280px —— 见 PRD §4.1）*/
+  .demo-sb {
+    width: 220px;
+    min-width: 220px;
+    background: linear-gradient(180deg, #1a2a5a, #111e44);
+    border-right: 2px solid rgba(74,107,255,.4);
+    display: flex; flex-direction: column; gap: 6px;
+    padding: 8px;
+    overflow: hidden;
+  }
+  .demo-sb-panel {
+    border-radius: 8px;
+    border: 2px solid rgba(74,107,255,.5);
+    background: linear-gradient(180deg, #1e3068, #152050);
+    padding: 6px 8px;
+    flex-shrink: 0;
+  }
+  .demo-sb-label {
+    font-family: var(--pixel); font-size: 6px; color: var(--muted);
+    letter-spacing: 1px; margin-bottom: 3px; text-transform: uppercase;
+  }
+  .demo-inset {
+    background: #050818; border-radius: 6px; padding: 4px 6px;
+    border: 1px solid rgba(74,107,255,.3);
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .demo-inset-big {
+    font-family: var(--pixel); font-size: 14px; font-weight: 900; line-height: 1;
+    color: #ff5566;
+  }
+  .demo-inset-sub { font-size: 8px; color: var(--gold); }
+
+  /* chips × mult 块 */
+  .demo-score-row { display: flex; gap: 4px; align-items: center; }
+  .demo-chips-block {
+    flex: 1;
+    background: linear-gradient(135deg, #4dd6ff, #2196f3);
+    border-radius: 8px; padding: 8px 4px 4px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: 0 3px 0 #0d4a80;
+    border: 2px solid #1a7bd4;
+  }
+  .demo-mult-block {
+    flex: 1;
+    background: linear-gradient(135deg, #ff8844, #ff3344);
+    border-radius: 8px; padding: 8px 4px 4px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: 0 3px 0 #8b1a1a;
+    border: 2px solid #cc2233;
+  }
+  .demo-score-val {
+    font-family: var(--pixel); font-size: 13px; font-weight: 900;
+    color: rgba(0,0,20,.8); line-height: 1;
+  }
+  .demo-score-unit { font-size: 6px; color: rgba(0,0,0,.55); margin-top: 2px; }
+  .demo-score-x {
+    font-family: var(--pixel); font-size: 10px; color: var(--text-dim); flex-shrink: 0;
+  }
+  .demo-hands-row { display: flex; gap: 4px; }
+  .demo-hand-block {
+    flex: 1; background: #1e3068; border: 2px solid rgba(74,107,255,.5);
+    border-radius: 6px; padding: 4px 6px; text-align: center;
+  }
+  .demo-hand-label { font-size: 7px; color: var(--muted); }
+  .demo-hand-val { font-family: var(--pixel); font-size: 12px; font-weight: 900; }
+  .demo-hand-val.green { color: #62d18b; }
+  .demo-hand-val.red   { color: #ff5544; }
+  .demo-btns { display: flex; gap: 4px; }
+  .demo-btn {
+    flex: 1; padding: 6px 4px; border-radius: 6px;
+    font-family: var(--pixel); font-size: 5px; font-weight: 900; text-align: center;
+    color: #fff; cursor: default;
+  }
+  .demo-btn.red    { background: linear-gradient(180deg,#ff4444,#cc1111); box-shadow: 0 2px 0 #880000; }
+  .demo-btn.orange { background: linear-gradient(180deg,#ff8800,#cc5500); box-shadow: 0 2px 0 #883300; }
+  .demo-money {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: #1e3068; border: 2px solid rgba(74,107,255,.5);
+    border-radius: 8px; padding: 6px 8px;
+  }
+  .demo-money-sign { font-family: var(--pixel); font-size: 10px; color: #ffc857; }
+  .demo-money-val  { font-family: var(--pixel); font-size: 16px; color: #ffb030; }
+  .demo-ante { text-align: center; font-size: 8px; }
+  .demo-ante .orange { color: #ffc857; }
+  .demo-ante .blue   { color: #4dd6ff; }
+
+  /* 右主区 */
+  .demo-main {
+    flex: 1; padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 6px;
+    overflow: hidden;
+  }
+  .demo-joker-bar {
+    background: rgba(10,20,60,.6);
+    border: 2px solid rgba(74,107,255,.35);
+    border-radius: 10px; padding: 6px 8px;
+  }
+  .demo-joker-label { font-family: var(--pixel); font-size: 5px; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+  .demo-joker-row { display: flex; gap: 6px; }
+  .demo-joker-card {
+    width: 54px; height: 72px;
+    background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+    border: 2px solid var(--card-edge);
+    border-radius: 5px; display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.5);
+  }
+  .demo-joker-empty {
+    width: 54px; height: 72px;
+    border: 2px dashed rgba(74,107,255,.3);
+    border-radius: 5px; background: rgba(74,107,255,.05);
+  }
+  .demo-play-area {
+    flex: 1; min-height: 0;
+    border: 2px dashed rgba(74,107,255,.25);
+    border-radius: 12px; background: rgba(5,8,24,.35);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 11px;
+  }
+  .demo-hand-area {
+    height: 90px;
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: -4px; padding: 4px 0;
+  }
+  .demo-play-card {
+    width: 44px; height: 64px;
+    background: linear-gradient(180deg, var(--paper-1), var(--paper-2));
+    border: 2px solid var(--card-edge); border-radius: 5px;
+    box-shadow: 0 2px 0 rgba(0,0,0,.5);
+    margin-left: -6px; flex-shrink: 0;
+  }
+  .demo-play-card:first-child { margin-left: 0; }
+  .demo-play-card.selected { transform: translateY(-12px); box-shadow: 0 4px 0 rgba(74,107,255,.5); }
+  .demo-bottom-btns { display: flex; gap: 5px; align-items: center; }
+  .demo-big-btn {
+    padding: 7px 12px; border-radius: 7px;
+    font-family: var(--pixel); font-size: 6px; color: #fff;
+    cursor: default;
+  }
+  .demo-big-btn.green { background: linear-gradient(180deg,#62d18b,#2a9d57); box-shadow: 0 3px 0 #145c2e; }
+  .demo-big-btn.red   { background: linear-gradient(180deg,#ff5544,#cc2211); box-shadow: 0 3px 0 #660a00; }
+  .demo-sm-btn {
+    padding: 5px 8px; border-radius: 5px; font-size: 7px; color: var(--text-dim);
+    background: rgba(74,107,255,.15); border: 1px solid rgba(74,107,255,.4);
+    cursor: default;
+  }
+
+  /* ===== 组件规范 ===== */
+  .comp-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
+  }
+  .comp-card {
+    background: rgba(74,107,255,.08);
+    border: 1px solid rgba(74,107,255,.25);
+    border-radius: 12px; padding: 16px;
+  }
+  .comp-title {
+    font-family: var(--pixel); font-size: 8px; color: var(--gold);
+    letter-spacing: 1px; margin-bottom: 12px;
+  }
+
+  /* ===== chips × mult 大展示 ===== */
+  .scoreboard-demo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; margin-bottom: 8px;
+  }
+  .chips-block-big {
+    flex: 1;
+    background: linear-gradient(135deg, #4dd6ff, #2196f3);
+    border-radius: 12px; padding: 14px 10px 10px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 4px 0 #0d4a80, 0 6px 16px rgba(33,150,243,.4);
+    border: 2px solid #1a7bd4;
+  }
+  .mult-block-big {
+    flex: 1;
+    background: linear-gradient(135deg, #ff8844, #ff3344);
+    border-radius: 12px; padding: 14px 10px 10px;
+    display: flex; flex-direction: column; align-items: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 0 #8b1a1a, 0 6px 16px rgba(255,51,68,.4);
+    border: 2px solid #cc2233;
+  }
+  .score-val-big {
+    font-family: var(--pixel); font-size: 32px; font-weight: 900;
+    color: rgba(0,5,20,.9); line-height: 1;
+  }
+  .score-unit-big { font-size: 9px; color: rgba(0,0,0,.5); margin-top: 5px; letter-spacing: 1px; }
+  .score-x-big { font-family: var(--pixel); font-size: 20px; color: var(--text-dim); flex-shrink: 0; }
+
+  /* ===== 按钮展示 ===== */
+  .btn-showcase { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .px-btn {
+    padding: 10px 18px; border-radius: 9px;
+    font-family: var(--pixel); font-size: 9px; font-weight: 900;
+    color: #fff; cursor: default; letter-spacing: 0.5px; line-height: 1.3;
+  }
+  .px-btn.green {
+    background: linear-gradient(180deg,#62d18b,#2a9d57);
+    box-shadow: 0 4px 0 #145c2e, 0 6px 0 rgba(0,0,0,.4);
+    border: 2px solid rgba(0,0,0,.3);
+  }
+  .px-btn.red {
+    background: linear-gradient(180deg,#ff5544,#cc2211);
+    box-shadow: 0 4px 0 #660a00, 0 6px 0 rgba(0,0,0,.4);
+    border: 2px solid rgba(0,0,0,.3);
+  }
+  .px-btn.sort {
+    background: rgba(74,107,255,.15);
+    border: 1px solid rgba(74,107,255,.4);
+    color: var(--text-dim);
+    box-shadow: none;
+  }
+  .sb-btn-demo {
+    flex: 0 0 auto; padding: 8px 14px; border-radius: 7px;
+    font-family: var(--pixel); font-size: 8px; color: #fff; cursor: default;
+  }
+  .sb-btn-demo.red    { background: linear-gradient(180deg,#ff4444,#cc1111); box-shadow: 0 3px 0 #880000; border: 2px solid rgba(0,0,0,.4); }
+  .sb-btn-demo.orange { background: linear-gradient(180deg,#ff8800,#cc5500); box-shadow: 0 3px 0 #883300; border: 2px solid rgba(0,0,0,.4); }
+
+  /* ===== 计分时序图 ===== */
+  .timeline {
+    display: flex; flex-direction: column; gap: 0;
+    border: 1px solid rgba(74,107,255,.3);
+    border-radius: 12px; overflow: hidden;
+  }
+  .tl-step {
+    display: grid; grid-template-columns: 60px 1fr auto;
+    align-items: center; gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(74,107,255,.15);
+  }
+  .tl-step:last-child { border-bottom: none; }
+  .tl-step:nth-child(odd) { background: rgba(74,107,255,.05); }
+  .tl-n {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(74,107,255,.2); border: 1px solid rgba(74,107,255,.4);
+    display: grid; place-items: center;
+    font-family: var(--pixel); font-size: 9px; color: var(--gold);
+    flex-shrink: 0;
+  }
+  .tl-desc { font-size: 13px; color: var(--text); line-height: 1.4; }
+  .tl-desc small { color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
+  .tl-timing {
+    font-family: var(--pixel); font-size: 8px; color: #4dd6ff;
+    white-space: nowrap;
+  }
+
+  /* ===== 文案锁定表 ===== */
+  .text-table { width: 100%; border-collapse: collapse; }
+  .text-table th, .text-table td {
+    padding: 10px 14px; text-align: left;
+    border-bottom: 1px solid rgba(74,107,255,.15);
+    font-size: 13px;
+  }
+  .text-table th {
+    font-family: var(--pixel); font-size: 8px; color: var(--muted); letter-spacing: 1px;
+    background: rgba(74,107,255,.1);
+  }
+  .text-table tr:nth-child(even) td { background: rgba(74,107,255,.04); }
+  .text-table code {
+    font-family: monospace; font-size: 12px; color: #4dd6ff;
+    background: rgba(74,107,255,.15); padding: 2px 6px; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-bar">
+  <h1>小丑牌 · 高保真设计稿</h1>
+  <span class="sub">蓝色水纹 · 官方 Balatro 风 · 2026-05</span>
+</div>
+
+<div class="container">
+
+  <!-- ===== §1 配色 Token ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">1</div>
+      <h2>配色 Token</h2>
+      <span class="tag">CSS 变量 / 设计令牌</span>
+    </div>
+    <div class="section-body">
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:18px">整体主调：深蓝水纹 + 蓝色 sidebar + chips 水彩蓝 × mult 火焰橙红。彻底告别绿色毛毡和紫色赌桌。</p>
+      <div class="token-grid">
+        <div class="token-row"><div class="token-swatch" style="background:#0a1438"></div><div><div class="token-name">--bg-deep</div><div class="token-val">#0a1438 整页底色</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#1a2858"></div><div><div class="token-name">--bg-water</div><div class="token-val">#1a2858 水纹中段</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#2d4080"></div><div><div class="token-name">--bg-glow</div><div class="token-val">#2d4080 中央高光</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#4a6bff"></div><div><div class="token-name">--sb-blue</div><div class="token-val">#4a6bff sidebar 蓝边</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#2d4080"></div><div><div class="token-name">--sb-blue-dk</div><div class="token-val">#2d4080 sidebar 深蓝</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#1a2858"></div><div><div class="token-name">--sb-panel</div><div class="token-val">#1a2858 子面板底色</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#050818"></div><div><div class="token-name">--inset</div><div class="token-val">#050818 嵌入黑底</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:linear-gradient(135deg,#4dd6ff,#2196f3)"></div><div><div class="token-name">--chips-from/to</div><div class="token-val">#4dd6ff → #2196f3 水彩蓝</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:linear-gradient(135deg,#ff8844,#ff3344)"></div><div><div class="token-name">--mult-from/to</div><div class="token-val">#ff8844 → #ff3344 火焰橙红</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ffc857"></div><div><div class="token-name">--gold</div><div class="token-val">#ffc857 金币金色</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ffb030"></div><div><div class="token-name">--money</div><div class="token-val">#ffb030 金钱橙</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ff3838"></div><div><div class="token-name">--btn-red</div><div class="token-val">#ff3838 红按钮</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ff8800"></div><div><div class="token-name">--btn-orange</div><div class="token-val">#ff8800 橙按钮（设置）</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#62d18b"></div><div><div class="token-name">--btn-green</div><div class="token-val">#62d18b 出牌按钮</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ff5544"></div><div><div class="token-name">--btn-discard</div><div class="token-val">#ff5544 弃牌按钮</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#ffffff"></div><div><div class="token-name">--text</div><div class="token-val">#ffffff 主文字</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#c9d2e8"></div><div><div class="token-name">--text-dim</div><div class="token-val">#c9d2e8 次要文字</div></div></div>
+        <div class="token-row"><div class="token-swatch" style="background:#8a9bbf"></div><div><div class="token-name">--muted</div><div class="token-val">#8a9bbf 灰蓝提示字</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §2 整页布局示意 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">2</div>
+      <h2>整页布局（Battle 阶段）</h2>
+      <span class="tag">左 Sidebar 300px + 右主区 flex-1 · 100vh 充满</span>
+    </div>
+    <div class="section-body">
+      <p style="color:var(--text-dim);font-size:13px;margin-bottom:18px">整页 100vh 不滚动。左 sidebar 用 <code style="color:var(--gold)">width: min(28vw, 480px); min-width: 280px</code>（PRD §4.1 硬锁定），右主区 flex-1 自动填充剩余空间。</p>
+      <div class="layout-demo">
+        <!-- 左 Sidebar -->
+        <div class="demo-sb">
+          <div class="demo-sb-panel">
+            <div class="demo-sb-label">盲注</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+              <span style="font-size:18px">🔴</span>
+              <div>
+                <div style="font-size:10px;font-weight:900;color:#fff">Boss 盲注</div>
+                <div style="font-size:7px;color:#ef476f;background:rgba(239,71,111,.15);padding:1px 4px;border-radius:3px;display:inline-block;margin-top:1px">头目盲注</div>
+              </div>
+            </div>
+            <div class="demo-inset">
+              <div style="font-size:8px;color:#8a9bbf">目标至少</div>
+              <div class="demo-inset-big">800</div>
+              <div class="demo-inset-sub">通关奖励 +$8</div>
+            </div>
+          </div>
+
+          <div class="demo-sb-panel">
+            <div class="demo-sb-label">Round score</div>
+            <div class="demo-inset">
+              <span style="font-family:var(--pixel);font-size:18px;color:#4dd6ff;line-height:1">560</span>
+            </div>
+            <div style="margin-top:4px;height:5px;border-radius:4px;background:rgba(0,0,0,.4);border:1px solid rgba(74,107,255,.3);overflow:hidden">
+              <div style="width:70%;height:100%;background:linear-gradient(90deg,#4dd6ff,#2196f3)"></div>
+            </div>
+          </div>
+
+          <div class="demo-sb-panel">
+            <div style="font-size:8px;font-weight:900;color:#fff;text-align:center;margin-bottom:5px;letter-spacing:1px">同花顺</div>
+            <div class="demo-score-row">
+              <div class="demo-chips-block">
+                <span class="demo-score-val">120</span>
+                <span class="demo-score-unit">筹码</span>
+              </div>
+              <span class="demo-score-x">×</span>
+              <div class="demo-mult-block">
+                <span class="demo-score-val">8</span>
+                <span class="demo-score-unit">倍率</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="demo-hands-row">
+            <div class="demo-hand-block">
+              <div class="demo-hand-label">手数</div>
+              <div class="demo-hand-val green">3</div>
+            </div>
+            <div class="demo-hand-block">
+              <div class="demo-hand-label">弃牌</div>
+              <div class="demo-hand-val red">2</div>
+            </div>
+          </div>
+
+          <div class="demo-btns">
+            <div class="demo-btn red">重新开始</div>
+            <div class="demo-btn orange">设置</div>
+          </div>
+
+          <div class="demo-money">
+            <span class="demo-money-sign">$</span>
+            <span class="demo-money-val">24</span>
+          </div>
+
+          <div class="demo-ante">
+            <span class="orange">底注 2/3</span>
+            <span style="color:#8a9bbf;margin:0 4px">·</span>
+            <span class="blue">回合 5</span>
+          </div>
+        </div>
+
+        <!-- 右主区 -->
+        <div class="demo-main">
+          <div class="demo-joker-bar">
+            <div class="demo-joker-label">JOKERS · 3/5</div>
+            <div class="demo-joker-row">
+              <div class="demo-joker-card">🎭</div>
+              <div class="demo-joker-card">💰</div>
+              <div class="demo-joker-card">🃏</div>
+              <div class="demo-joker-empty"></div>
+              <div class="demo-joker-empty"></div>
+            </div>
+          </div>
+
+          <div class="demo-play-area">
+            <span style="font-family:var(--pixel);font-size:9px">出牌区 / 预览公式</span>
+          </div>
+
+          <div class="demo-hand-area">
+            <div class="demo-play-card"></div>
+            <div class="demo-play-card selected"></div>
+            <div class="demo-play-card"></div>
+            <div class="demo-play-card selected"></div>
+            <div class="demo-play-card"></div>
+            <div class="demo-play-card"></div>
+            <div class="demo-play-card selected"></div>
+            <div class="demo-play-card"></div>
+          </div>
+
+          <div class="demo-bottom-btns">
+            <div class="demo-big-btn green">出牌 (3/5)</div>
+            <div class="demo-big-btn red">弃牌 (3)</div>
+            <div class="demo-sm-btn">按点数排序</div>
+            <div class="demo-sm-btn">按花色排序</div>
+            <div style="margin-left:auto;text-align:center">
+              <div style="width:22px;height:32px;background:linear-gradient(135deg,#4a2090,#1a0a40);border-radius:4px;border:2px solid #1a0a40;margin:0 auto 2px"></div>
+              <div style="font-size:7px;color:#8a9bbf">38/52</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §3 组件规范 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">3</div>
+      <h2>核心组件样式规范</h2>
+      <span class="tag">HAND 计分块 / 出牌区 / Joker 槽 / 按钮</span>
+    </div>
+    <div class="section-body">
+      <div class="comp-grid">
+
+        <!-- chips × mult 大块 -->
+        <div class="comp-card">
+          <div class="comp-title">HAND 计分块（核心爽感）</div>
+          <div style="font-size:11px;color:#fff;text-align:center;margin-bottom:6px;font-weight:900;letter-spacing:2px">同花顺</div>
+          <div class="scoreboard-demo">
+            <div class="chips-block-big">
+              <span class="score-val-big">256</span>
+              <span class="score-unit-big">筹码</span>
+            </div>
+            <span class="score-x-big">×</span>
+            <div class="mult-block-big">
+              <span class="score-val-big">16</span>
+              <span class="score-unit-big">倍率</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted)">chips 块：蓝色渐变 + 内阴影高光 + 蓝色描边。mult 块：橙红渐变 + 同结构。出牌时触发 scale(1.08) 跳动动画 + GSAP 飞字。</p>
+        </div>
+
+        <!-- 出牌区 / 预览 -->
+        <div class="comp-card">
+          <div class="comp-title">出牌区（play-table）</div>
+          <div style="height:110px;border:2px dashed rgba(74,107,255,.25);border-radius:10px;background:rgba(5,8,24,.35);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px">
+            <span style="font-family:var(--pixel);font-size:9px;color:#4dd6ff">对子</span>
+            <div style="display:flex;gap:8px;align-items:baseline;font-family:var(--pixel);font-weight:900">
+              <span style="color:#4dd6ff;font-size:18px">60</span>
+              <span style="color:#c9d2e8;font-size:12px">×</span>
+              <span style="color:#ff8844;font-size:18px">2</span>
+              <span style="color:#c9d2e8;font-size:12px">=</span>
+              <span style="color:#ffc857;font-size:22px">120</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px">未出牌时显示空态提示 <code style="color:var(--gold)">选择手牌组成牌型（1-5 张）</code>（不显示预估公式，第 3 轮升级再加）。出牌时按 §4 时间线显示 chips/mult 分步累加。</p>
+        </div>
+
+        <!-- 按钮 -->
+        <div class="comp-card">
+          <div class="comp-title">像素风格按钮</div>
+          <div class="btn-showcase" style="margin-bottom:10px">
+            <div class="px-btn green">出牌 (3/5)</div>
+            <div class="px-btn red">弃牌 (3)</div>
+          </div>
+          <div class="btn-showcase" style="margin-bottom:10px">
+            <div class="px-btn sort">按点数排序</div>
+            <div class="px-btn sort">按花色排序</div>
+          </div>
+          <div class="btn-showcase">
+            <div class="sb-btn-demo red">重新开始</div>
+            <div class="sb-btn-demo orange">⚙️ 设置</div>
+            <div class="sb-btn-demo" style="background:linear-gradient(180deg,#a855f7 0%,#9333ea 50%,#7e22ce 100%);box-shadow:0 3px 0 #581c87;border:2px solid rgba(0,0,0,.4);">🤖 AI 出牌</div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:10px">所有按钮使用 Inter / PingFang SC 字体（见 §3.5，<b>不用 Press Start 2P</b>）。按钮规范见 §3.6。<b>v7 新增</b>：设置按钮（橙）+ AI 出牌按钮（紫色霓虹），本轮全做。</p>
+        </div>
+
+        <!-- Joker 槽 -->
+        <div class="comp-card">
+          <div class="comp-title">Joker 槽（5 槽横排）</div>
+          <div style="background:rgba(10,20,60,.6);border:2px solid rgba(74,107,255,.35);border-radius:10px;padding:8px 10px;margin-bottom:8px">
+            <div style="font-family:var(--pixel);font-size:6px;color:#ffc857;letter-spacing:2px;margin-bottom:6px">JOKERS · 3/5</div>
+            <div style="display:flex;gap:8px;align-items:flex-end">
+              <div style="width:58px;height:80px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 2px 0 rgba(0,0,0,.5)">🎭</div>
+              <div style="width:58px;height:80px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 2px 0 rgba(0,0,0,.5)">💰</div>
+              <div style="width:58px;height:80px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 2px 0 rgba(0,0,0,.5)">🃏</div>
+              <div style="width:58px;height:80px;border:2px dashed rgba(74,107,255,.3);border-radius:6px;background:rgba(74,107,255,.05)"></div>
+              <div style="width:58px;height:80px;border:2px dashed rgba(74,107,255,.3);border-radius:6px;background:rgba(74,107,255,.05)"></div>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted)">Joker 触发时 translateY(-8px) + scale(1.05) + 金色发光。空槽位虚线蓝边灰底。</p>
+        </div>
+
+        <!-- 手牌 -->
+        <div class="comp-card">
+          <div class="comp-title">手牌（8 张横排扇形）</div>
+          <div style="display:flex;align-items:flex-end;justify-content:center;padding:8px 0 4px;min-height:80px">
+            <div style="width:42px;height:60px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.5);flex-shrink:0"></div>
+            <div style="width:42px;height:60px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.5);flex-shrink:0;margin-left:-6px;transform:translateY(-12px);box-shadow:0 4px 0 rgba(74,107,255,.4)"></div>
+            <div style="width:42px;height:60px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.5);flex-shrink:0;margin-left:-6px"></div>
+            <div style="width:42px;height:60px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.5);flex-shrink:0;margin-left:-6px;transform:translateY(-12px);box-shadow:0 4px 0 rgba(74,107,255,.4)"></div>
+            <div style="width:42px;height:60px;background:linear-gradient(180deg,#fff8e1,#f7e9c4);border:2px solid #1a0f24;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.5);flex-shrink:0;margin-left:-6px"></div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:6px">选中的牌 translateY(-28px)，蓝色发光。点击切换选中态，最多 5 张。</p>
+        </div>
+
+        <!-- 盲注面板 -->
+        <div class="comp-card">
+          <div class="comp-title">盲注大面板（Sidebar）</div>
+          <div style="background:linear-gradient(180deg,#1e3068,#152050);border:2px solid rgba(74,107,255,.5);border-radius:10px;padding:8px 10px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span style="font-size:22px">🔴</span>
+              <div>
+                <div style="font-size:12px;font-weight:900;color:#fff">The Ox</div>
+                <div style="font-size:8px;color:#ef476f;background:rgba(239,71,111,.2);padding:1px 5px;border-radius:3px;display:inline-block;margin-top:1px">头目盲注</div>
+              </div>
+            </div>
+            <div style="background:#050818;border-radius:8px;padding:6px;border:1px solid rgba(74,107,255,.3);display:flex;flex-direction:column;align-items:center;gap:2px">
+              <div style="font-size:8px;color:#8a9bbf;letter-spacing:1px">目标至少</div>
+              <div style="font-family:var(--pixel);font-size:20px;color:#ff5566;line-height:1">800</div>
+              <div style="font-size:8px;color:#ffc857">通关奖励 +$8</div>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px">盲注类型 tag：小盲注绿/大盲注金/头目盲注红。目标分数红色大字显示。</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §3.5 字体三类分工 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">3.5</div>
+      <h2>字体使用规则（v4 实测版）</h2>
+      <span class="tag">三类分工，严格不混用</span>
+    </div>
+    <div class="section-body">
+      <p style="color:var(--text-dim);margin-bottom:16px;">
+        v3 / v4 早期踩过坑：用 Press Start 2P 8-10px 渲染中文，fallback 到 monospace 后字形糊得看不清。<b>v4 最终方案</b>：按"中文 / 数字 / 英文装饰"三类分别选字体。
+      </p>
+
+      <div style="display:grid;gap:14px;">
+
+        <div style="background:rgba(74,107,255,.08);border:1px solid rgba(74,107,255,.3);border-radius:8px;padding:18px;">
+          <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:6px;">
+            ① Inter + PingFang SC + Microsoft YaHei
+          </div>
+          <div style="color:var(--gold);font-size:12px;font-weight:600;margin-bottom:10px;">用于：所有中文标签 / 中文按钮 / 中文标题</div>
+          <table class="text-table" style="font-size:13px;">
+            <tr><td style="color:var(--text-dim);padding:4px 0;">sidebar 标签</td><td style="color:#fff;font-weight:600;">13px · 600 weight</td><td style="color:var(--muted);">盲注、目标分、当前分、剩余手数、剩余弃牌、金币、奖励</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">中文强调</td><td style="color:#fff;font-weight:600;">14-18px · 700-800</td><td style="color:var(--muted);">盲注名、牌型名、段标题（手牌）</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">中文标题</td><td style="color:#fff;font-weight:600;">28-32px · 800-900</td><td style="color:var(--muted);">商店、通关全部、失败</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">按钮</td><td style="color:#fff;font-weight:600;">14-16px · 800</td><td style="color:var(--muted);">出牌、弃牌、按点排序、按花排序、重新开始、跳过</td></tr>
+          </table>
+        </div>
+
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:18px;">
+          <div style="font-family:'VT323',monospace;font-weight:700;font-size:28px;color:var(--gold);margin-bottom:6px;line-height:1;">
+            ② VT323
+          </div>
+          <div style="color:var(--gold);font-size:12px;font-weight:600;margin-bottom:10px;">用于：所有数字大屏（复古液晶字感）</div>
+          <table class="text-table" style="font-size:13px;">
+            <tr><td style="color:var(--text-dim);padding:4px 0;">目标分</td><td style="color:#fff;font-weight:600;">28-30px 金</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">Round Score</td><td style="color:#fff;font-weight:600;">≥ 40px 红</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">金币</td><td style="color:#fff;font-weight:600;">44px 金</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">Hands / Discards</td><td style="color:#fff;font-weight:600;">34px 绿 / 红</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">牌堆计数</td><td style="color:#fff;font-weight:600;">14px 金</td></tr>
+          </table>
+          <p style="color:var(--mult-from);font-size:12px;margin-top:10px;"><b>⛔️ 禁忌：</b>不要用 VT323 渲染中文（fallback 难看）</p>
+        </div>
+
+        <div style="background:rgba(255,200,87,.08);border:1px solid rgba(255,200,87,.3);border-radius:8px;padding:18px;">
+          <div style="font-family:'Press Start 2P',monospace;font-weight:700;font-size:16px;color:var(--gold);margin-bottom:8px;letter-spacing:1.5px;">
+            ③ PRESS START 2P
+          </div>
+          <div style="color:var(--gold);font-size:12px;font-weight:600;margin-bottom:10px;">用于：仅纯英文装饰 / Logo / chips·mult 数字（Balatro 风格标志）</div>
+          <table class="text-table" style="font-size:13px;">
+            <tr><td style="color:var(--text-dim);padding:4px 0;">Logo「🃏 小丑牌」</td><td style="color:#fff;font-weight:600;">18px + 2px 黑硬投影</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">段标题「JOKERS · X/5」</td><td style="color:#fff;font-weight:600;">14px + 2px 黑硬投影</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">货币符号 $</td><td style="color:#fff;font-weight:600;">14px</td></tr>
+            <tr><td style="color:var(--text-dim);padding:4px 0;">chips / mult 块大数字</td><td style="color:#fff;font-weight:600;">≥ 28px 黑字（在亮色块上）</td></tr>
+          </table>
+          <p style="color:var(--mult-from);font-size:12px;margin-top:10px;"><b>⛔️ 禁忌：</b>不要用 Press Start 2P 渲染中文（v3/v4 早期踩坑：9px Press Start 2P 中文几乎看不清）</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §3.6 按钮规范 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">3.6</div>
+      <h2>按钮规范（v4 最终版）</h2>
+      <span class="tag">中文友好 + 多层渐变质感 + hover/active 反馈</span>
+    </div>
+    <div class="section-body">
+
+      <p style="color:var(--text-dim);margin-bottom:16px;">
+        所有按钮统一基础样式 <code style="color:var(--gold)">.px-btn</code>，按职责分配颜色。
+      </p>
+
+      <h4 style="color:var(--gold);font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:1px;margin-top:0;">基础样式</h4>
+      <pre style="background:rgba(0,0,0,.4);border:1px solid var(--line-soft);border-radius:6px;padding:14px;color:var(--text-dim);font-family:monospace;font-size:12px;line-height:1.6;overflow-x:auto;">
+.px-btn {
+  min-height: 52px;
+  padding: 14px 26px;
+  border-radius: 12px;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  border: 2px solid rgba(0,0,0,.35);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.px-btn:hover:not([disabled])  { transform: translateY(-2px); filter: brightness(1.1) saturate(1.15); }
+.px-btn:active:not([disabled]) { transform: translateY(2px);  filter: brightness(0.92); }
+.px-btn[disabled]              { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.3); }</pre>
+
+      <h4 style="color:var(--gold);font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:1px;margin-top:24px;">按职责分配颜色</h4>
+      <table class="text-table" style="font-size:13px;width:100%;">
+        <tr><th style="text-align:left;color:var(--gold);font-family:'Press Start 2P',monospace;font-size:9px;padding:8px 0;">按钮</th><th style="text-align:left;color:var(--gold);font-family:'Press Start 2P',monospace;font-size:9px;">背景渐变（180deg, 顶→中→底）</th><th style="text-align:left;color:var(--gold);font-family:'Press Start 2P',monospace;font-size:9px;">hard shadow</th></tr>
+        <tr><td style="padding:8px 0;color:#34d399;font-weight:700;">出牌（主，绿）</td><td style="color:var(--text-dim);">#34d399 → #10b981 → #059669</td><td style="color:var(--text-dim);">0 5px 0 #047857</td></tr>
+        <tr><td style="padding:8px 0;color:#ef4444;font-weight:700;">弃牌 / 重开（红）</td><td style="color:var(--text-dim);">#fb7185 → #ef4444 → #dc2626</td><td style="color:var(--text-dim);">0 5px 0 #991b1b</td></tr>
+        <tr><td style="padding:8px 0;color:#a5b4fc;font-weight:700;">排序（ghost 紫蓝）</td><td style="color:var(--text-dim);">rgba(99,102,241,.28) → rgba(67,56,202,.20)</td><td style="color:var(--text-dim);">0 3px 0 rgba(67,56,202,.4)</td></tr>
+        <tr><td style="padding:8px 0;color:#f59e0b;font-weight:700;">设置（橙）</td><td style="color:var(--text-dim);">#fbbf24 → #f59e0b → #d97706</td><td style="color:var(--text-dim);">0 4px 0 #92400e</td></tr>
+        <tr><td style="padding:8px 0;color:#818cf8;font-weight:700;">商店跳过（蓝紫）</td><td style="color:var(--text-dim);">#818cf8 → #6366f1 → #4338ca</td><td style="color:var(--text-dim);">0 5px 0 #312e81</td></tr>
+      </table>
+
+      <p style="color:var(--text-dim);font-size:12px;margin-top:14px;line-height:1.6;">
+        每个按钮额外加 <b>inset 顶部高光</b> <code style="color:var(--gold)">inset 0 1px 0 rgba(255,255,255,.3)</code>，让按钮看起来有立体浮雕感。
+      </p>
+
+      <div style="margin-top:24px;padding:14px;background:rgba(239,68,68,.08);border-left:3px solid var(--mult-to);border-radius:4px;">
+        <b style="color:var(--mult-to);">⛔️ 禁忌</b>
+        <ul style="color:var(--text-dim);font-size:13px;margin:8px 0 0;padding-left:20px;">
+          <li>不要用 Press Start 2P 渲染按钮中文（v3 用 9px 像素字几乎看不清，v4 已切到 Inter 16px）</li>
+          <li>不要把按钮高度做扁（&lt; 44px）—— 移动端触摸不友好</li>
+          <li>不要省略 hover/active 反馈 —— 学员第一感觉就是"按钮没反应"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §4 计分动画时序 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">4</div>
+      <h2>计分动画时序（出牌后）</h2>
+      <span class="tag">核心爽感 · 必须完整实现</span>
+    </div>
+    <div class="section-body">
+      <div class="timeline">
+        <div class="tl-step">
+          <div class="tl-n">1</div>
+          <div class="tl-desc">选中的牌克隆 → fixed 定位，飞向 Played Hand 区中央（5 张分散排列）<small>原牌 visibility:hidden 保留占位 · GSAP to() 飞行</small></div>
+          <div class="tl-timing">0 - 350ms</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">2</div>
+          <div class="tl-desc">显示牌型名称 · sidebar chips/mult 重置为牌型基础值（不含逐张点数）<small>battleChips = handType.chips · battleMult = handType.mult</small></div>
+          <div class="tl-timing">350 - 550ms</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">3</div>
+          <div class="tl-desc">逐张高亮（每 150ms 一张）· 每张牌上移 18px + 蓝色发光 · GSAP flyToHud 飞字 +{cardValue} 飞向 chips 块 · chips 块跳动<small>被 boss debuff 的牌：抖动 + 灰字 DEBUFF，跳过加值</small></div>
+          <div class="tl-timing">550ms+</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">4</div>
+          <div class="tl-desc">按 ownedJokers 顺序逐个触发 · 每个 Joker 上移 + 金色粒子爆炸 · 飞字 +N Chips 或 +N Mult 飞向对应块<small>每个 Joker 间隔 300ms · chips 块或 mult 块跳动</small></div>
+          <div class="tl-timing">620ms × N</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">5</div>
+          <div class="tl-desc">最终公式爆出：中央弹出大字 <strong style="color:#4dd6ff">chips</strong> × <strong style="color:#ff8844">mult</strong> = <strong style="color:#ffc857">score</strong><small>final-formula Transition · 停留 1.5s · 字号分别 56/56/76px</small></div>
+          <div class="tl-timing">+180ms</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">6</div>
+          <div class="tl-desc">score 数字飞向 Round score 进度条 · totalScore 累加（ScoreCounter 数字滚动）<small>GSAP flyToHud 从公式 .ff-score 飞向 .hud-progress</small></div>
+          <div class="tl-timing">+560ms</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">7</div>
+          <div class="tl-desc">克隆牌淡出销毁 · 剩余手牌 FLIP 紧凑过渡 · 补牌飞入<small>400ms 后补牌，scheduleReorderAfterDeal 自动触发理牌</small></div>
+          <div class="tl-timing">+310ms</div>
+        </div>
+        <div class="tl-step">
+          <div class="tl-n">8</div>
+          <div class="tl-desc">判定通关 / 失败 · 通关 → 粒子爆炸 + 音效 + 进入商店 · 失败 → 游戏结束屏<small>blindScore >= targetScore → passBlind() · handsLeft === 0 → failBlind()</small></div>
+          <div class="tl-timing">结束</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== §5 文案锁定 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">5</div>
+      <h2>文案锁定表</h2>
+      <span class="tag">所有可见 UI 文案 · 不得随意修改</span>
+    </div>
+    <div class="section-body">
+      <table class="text-table">
+        <tr><th>位置</th><th>文案</th><th>说明</th></tr>
+        <tr><td>Sidebar 盲注类型</td><td><code>小盲注 / 大盲注 / 头目盲注</code></td><td>根据 blind.type 显示，不显示英文 small/big/boss</td></tr>
+        <tr><td>Sidebar 盲注目标</td><td><code>目标至少</code> + 红色大数字</td><td>盲注 targetScore</td></tr>
+        <tr><td>Sidebar 通关奖励</td><td><code>通关奖励 +$N</code></td><td>盲注 reward 字段</td></tr>
+        <tr><td>Round score 标签</td><td><code>Round score</code></td><td>英文，保留原版风格</td></tr>
+        <tr><td>chips 块单位</td><td><code>筹码</code></td><td>中文，置于数字下方小字</td></tr>
+        <tr><td>mult 块单位</td><td><code>倍率</code></td><td>中文，置于数字下方小字</td></tr>
+        <tr><td>Hands 标签</td><td><code>手数</code></td><td>sidebar 面板</td></tr>
+        <tr><td>Discards 标签</td><td><code>弃牌</code></td><td>sidebar 面板</td></tr>
+        <tr><td>重新开始按钮</td><td><code>重新开始</code></td><td>sidebar 红色按钮</td></tr>
+        <tr><td>设置按钮（右上角）</td><td><code>⚙️</code>（44×44 圆角图标按钮）</td><td>v7 本轮必做（点击打开设置 Modal）</td></tr>
+        <tr><td>设置 Modal 标题</td><td><code>设置</code>（Inter 24px bold 金）</td><td>v7 本轮必做</td></tr>
+        <tr><td>AI 出牌按钮（对局）</td><td><code>🤖 AI 出牌</code>（紫色 4.6 规范）</td><td>v7 本轮必做</td></tr>
+        <tr><td>AI 思考态</td><td><code>🤔 AI 思考中…</code></td><td>按钮 disabled + 紫色脉冲呼吸动画</td></tr>
+        <tr><td>AI 建议按钮（商店）</td><td><code>🤖 AI 建议</code></td><td>商店阶段高亮一张性价比最高的 Joker</td></tr>
+        <tr><td>金钱面板</td><td><code>$N</code></td><td>$ 符号 + 数字</td></tr>
+        <tr><td>Ante 进度</td><td><code>底注 N/3</code></td><td>橙色字，3 是 TOTAL_ANTES</td></tr>
+        <tr><td>回合显示</td><td><code>回合 N</code></td><td>蓝色字，currentBlind+1</td></tr>
+        <tr><td>Joker 槽标签</td><td><code>JOKERS · X/5</code></td><td>X 是当前持有数，全大写英文 Press Start 2P</td></tr>
+        <tr><td>Joker 空槽内容</td><td>中央 <code>+</code>（24px 灰）+ 下方 <code>空槽</code>（12px 灰）</td><td>跟实卡同尺寸 140×200 虚线方框</td></tr>
+        <tr><td>出牌按钮</td><td><code>出牌 (X)</code></td><td><b>X = 当前选中张数</b>（不带 /5，跟 PRD §6 对齐）</td></tr>
+        <tr><td>弃牌按钮</td><td><code>弃牌 (X)</code></td><td><b>X = 剩余弃牌数</b>（不是选中数，跟 PRD §6 对齐）</td></tr>
+        <tr><td>排序按钮</td><td><code>按点排序</code> / <code>按花排序</code></td><td>紫蓝 ghost 按钮，14px</td></tr>
+        <tr><td>手牌标签</td><td><code>手牌</code>（左）<code>已选 X / 5 张</code>（右）</td><td>两段分开，不拼一行</td></tr>
+        <tr><td>出牌区空态</td><td><code>选择手牌组成牌型（1-5 张）</code></td><td>Inter 14px 灰 opacity 0.55，居中</td></tr>
+        <tr><td>牌库计数</td><td><code>N/52</code></td><td>52 是完整牌组张数</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== §6 v7 新增视觉规范 ===== -->
+  <div class="section">
+    <div class="section-head">
+      <div class="num">6</div>
+      <h2>v7 新增视觉规范</h2>
+      <span class="tag">设置按钮 / AI 出牌按钮 / 设置 Modal / 牌堆 absolute</span>
+    </div>
+    <div class="section-body">
+
+      <div class="comp-grid">
+
+        <!-- 设置按钮（齿轮浮在右上角） -->
+        <div class="comp-card">
+          <div class="comp-title">右上角设置按钮（⚙️）</div>
+          <div style="display:flex;justify-content:center;padding:20px 0;">
+            <button style="width:44px;height:44px;border-radius:12px;background:linear-gradient(180deg,#fbbf24 0%,#f59e0b 50%,#d97706 100%);box-shadow:0 4px 0 #92400e, 0 6px 12px rgba(245,158,11,.35), inset 0 1px 0 rgba(255,255,255,.3);border:2px solid rgba(0,0,0,.35);color:#fff;font-size:22px;cursor:default;display:grid;place-items:center;">⚙️</button>
+          </div>
+          <p style="font-size:11px;color:var(--muted);">绝对定位 <code style="color:var(--gold)">top: 16px; right: 16px; z-index: 100</code>，浮在 viewport 右上角。点击打开设置 Modal。颜色用橙色（4.6 规范的「设置」色）。</p>
+        </div>
+
+        <!-- AI 出牌按钮（紫色霓虹） -->
+        <div class="comp-card">
+          <div class="comp-title">AI 出牌按钮（🤖 紫色霓虹）</div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:16px 0;align-items:center;">
+            <div style="padding:14px 26px;border-radius:12px;background:linear-gradient(180deg,#c084fc 0%,#a855f7 50%,#7e22ce 100%);box-shadow:0 5px 0 #581c87, 0 8px 18px rgba(168,85,247,.4), inset 0 1px 0 rgba(255,255,255,.3);border:2px solid rgba(0,0,0,.35);color:#fff;font:800 16px/1.2 Inter,sans-serif;letter-spacing:1.5px;text-shadow:0 1px 2px rgba(0,0,0,.45);">🤖 AI 出牌</div>
+            <div style="padding:14px 26px;border-radius:12px;background:linear-gradient(180deg,#c084fc 0%,#a855f7 50%,#7e22ce 100%);box-shadow:0 5px 0 #581c87, 0 8px 18px rgba(168,85,247,.4), inset 0 1px 0 rgba(255,255,255,.3);border:2px solid rgba(0,0,0,.35);color:#fff;font:800 16px/1.2 Inter,sans-serif;letter-spacing:1.5px;text-shadow:0 1px 2px rgba(0,0,0,.45);opacity:.7;">🤔 AI 思考中…</div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);">放在第 3 段操作按钮行最右侧。配色：<code style="color:var(--gold)">#c084fc → #a855f7 → #7e22ce</code>。思考态加紫色脉冲呼吸动画（scale 1.0 ↔ 1.05，1s 循环）。</p>
+        </div>
+
+        <!-- 设置 Modal（居中弹窗） -->
+        <div class="comp-card" style="grid-column: 1 / -1;">
+          <div class="comp-title">设置 Modal（居中弹窗）</div>
+          <div style="position:relative;height:300px;background:rgba(0,0,0,.4);border-radius:10px;display:grid;place-items:center;">
+            <div style="width:380px;background:linear-gradient(180deg,#1e3068 0%,#0a1438 100%);border:2px solid #4a6bff;border-radius:14px;padding:20px 22px;box-shadow:0 12px 32px rgba(0,0,0,.6);">
+              <div style="font:800 22px/1 Inter,sans-serif;color:#ffd166;margin-bottom:14px;text-align:center;">设置</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font:600 13px Inter,sans-serif;color:#c9d2e8;">BGM 音量</span>
+                  <input type="range" value="50" style="width:140px;accent-color:#4dd6ff;" disabled />
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font:600 13px Inter,sans-serif;color:#c9d2e8;">SFX 音量</span>
+                  <input type="range" value="70" style="width:140px;accent-color:#ff8844;" disabled />
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font:600 13px Inter,sans-serif;color:#c9d2e8;">动画速度</span>
+                  <div style="display:flex;gap:4px;">
+                    <span style="padding:4px 10px;border-radius:5px;background:rgba(74,107,255,.15);font:600 12px Inter;color:#8a9bbf;">慢</span>
+                    <span style="padding:4px 10px;border-radius:5px;background:#4a6bff;font:700 12px Inter;color:#fff;">普通</span>
+                    <span style="padding:4px 10px;border-radius:5px;background:rgba(74,107,255,.15);font:600 12px Inter;color:#8a9bbf;">快</span>
+                  </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font:600 13px Inter,sans-serif;color:#c9d2e8;">显示出牌公式预览</span>
+                  <div style="width:38px;height:22px;background:#4a6bff;border-radius:11px;position:relative;">
+                    <div style="position:absolute;top:2px;right:2px;width:18px;height:18px;background:#fff;border-radius:50%;"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:18px;display:flex;justify-content:center;">
+                <button style="padding:8px 24px;border-radius:8px;background:linear-gradient(180deg,#818cf8 0%,#6366f1 50%,#4338ca 100%);box-shadow:0 4px 0 #312e81;border:2px solid rgba(0,0,0,.35);color:#fff;font:700 14px Inter,sans-serif;cursor:default;">关闭</button>
+              </div>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px;">居中 380×自适应高度，深蓝水纹卡片 + 蓝边框 14px 圆角。4 项设置：BGM 滑块 / SFX 滑块 / 动画速度 radio / 公式预览 toggle。背景遮罩 <code style="color:var(--gold)">rgba(0,0,0,.4)</code>，点击关 Modal。</p>
+        </div>
+
+        <!-- 牌堆位置示意 -->
+        <div class="comp-card" style="grid-column: 1 / -1;">
+          <div class="comp-title">牌堆位置（v7 调整：absolute 内嵌出牌区）</div>
+          <div style="position:relative;height:200px;background:rgba(5,8,24,.4);border:2px dashed rgba(74,107,255,.3);border-radius:10px;padding:14px;">
+            <div style="font:600 11px Inter,sans-serif;color:#8a9bbf;">第 2 段（出牌区 PlayArea，position: relative）</div>
+            <div style="position:absolute;bottom:16px;right:16px;width:60px;height:90px;">
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#6b3ec9,#2d0d6e);border:2px solid #1a0f24;border-radius:6px;transform:translate(-6px,6px);opacity:.55;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#6b3ec9,#2d0d6e);border:2px solid #1a0f24;border-radius:6px;transform:translate(-3px,3px);opacity:.8;"></div>
+              <div style="position:absolute;inset:0;background:linear-gradient(135deg,#6b3ec9,#2d0d6e);border:2px solid #1a0f24;border-radius:6px;"></div>
+            </div>
+            <div style="position:absolute;bottom:0;right:16px;font:14px VT323,monospace;color:#ffd166;">38/52</div>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:8px;"><b>v6 → v7 关键改动</b>：牌堆从 <code style="color:#ff5544;">position: fixed; bottom: 24px; right: 20px</code>（贴 viewport 右下，会被 Modal 遮 / 窄屏外漂）改成 <code style="color:var(--gold)">position: absolute; bottom: 16px; right: 16px</code>（贴出牌区段右下，跟段一起被 grid 约束）。</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
