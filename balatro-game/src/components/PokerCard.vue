@@ -109,11 +109,16 @@ defineEmits(['click'])
   font-size: 36px;
   text-align: center;
   line-height: 1;
+  color: #1a1a1a;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
+}
+
+.suit-red .card-center-suit {
+  color: #c0232a;
 }
 
 .selected-glow {
