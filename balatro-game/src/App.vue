@@ -98,9 +98,9 @@
 
         <!-- 牌堆 absolute 内嵌出牌区 — PRD §4.4 §10.1 -->
         <div class="deck-pile" ref="deckRef" v-if="gameState === 'playing'">
-          <div class="deck-layer deck-layer-3"></div>
-          <div class="deck-layer deck-layer-2"></div>
-          <div class="deck-layer deck-layer-1"></div>
+          <div class="deck-layer deck-layer-3" :style="{ backgroundImage: `url(${jokerBackUrl})` }"></div>
+          <div class="deck-layer deck-layer-2" :style="{ backgroundImage: `url(${jokerBackUrl})` }"></div>
+          <div class="deck-layer deck-layer-1" :style="{ backgroundImage: `url(${jokerBackUrl})` }"></div>
           <div class="deck-count">{{ deck.length }}/52</div>
         </div>
       </section>
@@ -234,6 +234,7 @@ import SideBar from './components/SideBar.vue'
 import JokerCard from './components/JokerCard.vue'
 import PokerCard from './components/PokerCard.vue'
 import SettingsModal from './components/SettingsModal.vue'
+import jokerBackUrl from './assets/joker-back.png'
 import {
   createDeck,
   cardValue,
@@ -988,7 +989,10 @@ function spawnFlyText(text, fromPos, cls) {
 .deck-layer {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #6b3ec9, #2d0d6e);
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 2px solid #1a0f24;
   border-radius: 8px;
 }
