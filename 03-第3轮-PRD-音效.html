@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>第 3 轮 · PRD · 小丑牌配乐（音效系统）</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --ink: #1a1a1a;
+    --muted: #6a6a6a;
+    --line: #e3e0d8;
+    --gold: #b8860b;
+    --gold-bg: #fff8dc;
+    --purple: #5b3a8e;
+    --purple-bg: #f3eefa;
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --green: #15803d;
+    --green-bg: #f0fdf4;
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --code-bg: #f4f1ea;
+    --code-border: #d9d2c0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; font-size: 15px; line-height: 1.7; }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 56px 32px 120px; }
+
+  .doc-meta {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    color: var(--purple);
+  }
+  .doc-meta strong { color: var(--purple); }
+
+  h1 { font-size: 32px; text-align: center; margin: 0 0 8px; letter-spacing: -0.5px; }
+  .subtitle { text-align: center; color: var(--muted); margin-bottom: 12px; font-size: 15px; }
+  .meta { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 22px; margin-top: 56px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--purple); color: var(--purple); }
+  h3 { font-size: 17px; margin-top: 32px; margin-bottom: 12px; color: var(--ink); }
+  h4 { font-size: 15px; margin-top: 20px; margin-bottom: 8px; color: var(--purple); }
+  p { margin: 12px 0; }
+  ul, ol { padding-left: 24px; margin: 12px 0; }
+  li { margin: 6px 0; }
+  code { background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 4px; padding: 1px 6px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: var(--purple); }
+  pre { background: var(--code-bg); border: 1px solid var(--code-border); border-left: 4px solid var(--purple); border-radius: 6px; padding: 16px 18px; overflow-x: auto; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.6; }
+  pre code { background: none; border: none; padding: 0; color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); font-weight: 600; }
+  .callout { border-left: 4px solid; border-radius: 4px; padding: 12px 16px; margin: 16px 0; background: #fff; }
+  .callout.tip { border-color: var(--blue); background: var(--blue-bg); }
+  .callout.warn { border-color: var(--red); background: var(--red-bg); }
+  .callout.win { border-color: var(--green); background: var(--green-bg); }
+  .callout.gold { border-color: var(--gold); background: var(--gold-bg); }
+  .callout strong { display: block; margin-bottom: 4px; }
+  .lock { display: inline-block; background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding-left: 28px; position: relative; margin: 8px 0; }
+  .checklist li::before { content: '☐'; position: absolute; left: 8px; color: var(--purple); font-weight: 700; }
+  hr { border: none; border-top: 1px dashed var(--line); margin: 48px 0; }
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .flow {
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    background: var(--purple-bg); padding: 14px 18px; border-radius: 8px;
+    margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  .flow .node { background: white; border: 1px solid var(--purple); padding: 4px 10px; border-radius: 4px; }
+  .flow .arrow { color: var(--purple); font-weight: 700; }
+  .module-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--purple);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .module-card h3 { margin-top: 0; color: var(--purple); }
+  .priority-p0 { display: inline-block; background: #fef2f2; color: var(--red); border: 1px solid var(--red); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .priority-p1 { display: inline-block; background: var(--gold-bg); color: var(--gold); border: 1px solid var(--gold); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+  .priority-p2 { display: inline-block; background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue); border-radius: 3px; padding: 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1px; vertical-align: middle; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="doc-meta">
+  <strong>📋 产品经理 AI 同事产物</strong>
+  本文档由 PM 子代理产出，描述「做什么」而非「怎么做」。技术实施细节由全栈工程师 AI 同事在「实施指引」环节决定。
+  <br><br>
+  <strong>配套文档</strong>：<code>01-第1轮-PRD-小丑牌核心循环.html</code>（第 1 轮 PRD，音效系统在此基础上叠加）
+  <br><br>
+  <strong>轮次说明</strong>：这是第 3 轮 PRD 的「配乐」部分（SFX + BGM）。粒子升级（通关撒金币、爆分粒子等高级特效）单独另写为 <code>04-第3轮-PRD-粒子.html</code>，不在本文档范围内。
+</div>
+
+<h1>第 3 轮 · PRD · 小丑牌配乐（音效系统）</h1>
+<p class="subtitle">5 个 SFX 事件 + BGM 循环 —— 接通第 1 轮已有的设置面板滑块</p>
+<p class="meta">课程版本：B2 · 第 3 轮（音效子模块）/ 共 6 轮 · 文档版本：v1</p>
+
+<div class="callout gold">
+  <strong>轮次定位：轻量补丁，预算 25 分钟以内</strong>
+  第 1 轮已完成核心循环 + 动效 + 设置面板（含 BGM/SFX slider，值写入 localStorage 但未接音频）。本轮唯一任务：用 Howler.js 把音频文件加载起来，把 5 个事件时机挂上 SFX，把 BGM 跑起来，接通两个已有的音量 slider。不改任何游戏逻辑，不改 UI 布局。
+</div>
+
+<h2>一、一句话定位</h2>
+
+<p>为「小丑牌」网页游戏补全音效层——5 个 SFX 事件 + 1 轨 BGM，接通第 1 轮设置面板已有的两个音量 slider，让玩家在牌桌上获得完整的声画反馈。</p>
+
+<h2>二、目标用户与场景</h2>
+
+<table>
+  <tr><th>维度</th><th>描述</th></tr>
+  <tr><td>用户</td><td>已经在玩第 1 轮产出版本的玩家（包括课程学员自测）</td></tr>
+  <tr><td>典型场景</td><td>浏览器中玩牌，出牌时只有视觉动效、没有声音，感觉像「哑巴游戏」；通关时没有任何听觉庆祝反馈</td></tr>
+  <tr><td>当前解决方式</td><td>无——第 1 轮 PRD §七明确将音频 defer 到第 3 轮</td></tr>
+  <tr><td>移动端场景</td><td>玩家在手机上打开 GitHub Pages 链接，浏览器 autoplay 政策阻止音频自动播放；首次触摸屏幕时静默解锁，无需任何额外操作</td></tr>
+</table>
+
+<h2>三、核心价值主张</h2>
+
+<ul>
+  <li><b>声画同步</b>：计分爆出、通关、失败这三个情绪高峰有对应的听觉强化，让「爽感」更完整</li>
+  <li><b>零侵入接入</b>：完全复用第 1 轮设置面板的 BGM / SFX slider（localStorage key <code>balatro.settings</code> 已存值），无需新增 UI，不改游戏逻辑</li>
+  <li><b>静默降级</b>：素材加载失败或 autoplay 解锁失败时，游戏继续正常运行，不报错、不阻塞</li>
+</ul>
+
+<h2>四、功能清单（MVP）</h2>
+
+<div class="module-card">
+  <h3>M1 · 5 个 SFX 事件 <span class="priority-p0">P0</span></h3>
+
+  <p>以下 5 个事件必须在对应时机触发音效播放，均受 SFX 音量 slider 控制：</p>
+
+  <table>
+    <tr><th>事件 ID</th><th>触发时机（对应第 1 轮 §5.1 时间线步骤）</th><th>文件命名建议</th><th>推荐音色</th></tr>
+    <tr>
+      <td><code>sfx-select</code></td>
+      <td>玩家点击手牌切换选中 / 取消选中时（每次点击各触发一次）</td>
+      <td><code>sfx-select.mp3</code></td>
+      <td>短促清脆点击音（&lt;150ms），避免堆叠刺耳</td>
+    </tr>
+    <tr>
+      <td><code>sfx-play</code></td>
+      <td>玩家按下「出牌」按钮的瞬间（§5.1 步骤 1 飞牌开始前）</td>
+      <td><code>sfx-play.mp3</code></td>
+      <td>卡牌打出声，有厚度，&lt;300ms</td>
+    </tr>
+    <tr>
+      <td><code>sfx-score</code></td>
+      <td>§5.1 步骤 5：chips × mult = score 大字在中央弹出的瞬间</td>
+      <td><code>sfx-score.mp3</code></td>
+      <td>爆裂 / 硬币叮当冲击音，0.5-1 秒，有冲击力</td>
+    </tr>
+    <tr>
+      <td><code>sfx-win</code></td>
+      <td>状态机切换到 <code>won</code> 时（3 关全通关）</td>
+      <td><code>sfx-win.mp3</code></td>
+      <td>欢快升调胜利短曲，1-3 秒</td>
+    </tr>
+    <tr>
+      <td><code>sfx-lose</code></td>
+      <td>状态机切换到 <code>lost</code> 时（手数用尽未达目标分）</td>
+      <td><code>sfx-lose.mp3</code></td>
+      <td>沉重降调失败音，1-2 秒</td>
+    </tr>
+  </table>
+
+  <div class="callout tip">
+    <strong>SFX 叠播上限</strong>：同时最多允许 <b>4 个 SFX 实例并发播放</b>。<code>sfx-select</code> 在快速连续点牌时最容易触发堆叠——若当前并发数已达上限，新触发的该音效直接丢弃（静默跳过），不排队等待。其他 4 个事件无需特殊处理（自然不会并发 4 次）。
+  </div>
+</div>
+
+<div class="module-card">
+  <h3>M2 · BGM 循环播放 <span class="priority-p0">P0</span></h3>
+
+  <table>
+    <tr><th>项</th><th>规则 <span class="lock">锁定</span></th></tr>
+    <tr><td>文件命名</td><td><code>bgm-main.mp3</code>（单轨，覆盖整个游戏会话）</td></tr>
+    <tr><td>播放模式</td><td>无限循环（<code>loop: true</code>），页面生命周期内不主动停止</td></tr>
+    <tr><td>关卡切换处理</td><td>关卡通关 → 商店 → 下一关，BGM <b>不中断</b>，继续循环；不做按关卡换曲（本轮只有一轨）</td></tr>
+    <tr><td>淡入淡出</td><td>BGM 初次启动：淡入 800ms（避免突然爆音）；游戏结束（won/lost）时：BGM 淡出 1200ms 后停止，让 sfx-win / sfx-lose 的情绪不被遮盖</td></tr>
+    <tr><td>默认音量</td><td>50（对应 localStorage <code>bgmVolume: 50</code>，0-100 映射到 Howler 0.0-1.0）</td></tr>
+  </table>
+</div>
+
+<div class="module-card">
+  <h3>M3 · 设置面板接通 <span class="priority-p0">P0</span></h3>
+
+  <p>第 1 轮已在 Modal 里做好两个 slider，并把值持久化到 <code>localStorage</code>。本轮的唯一工作是把这两个 slider 的 <code>v-model</code> 值实时 <code>watch</code> 后驱动 Howler 音量更新：</p>
+
+  <table>
+    <tr><th>Slider</th><th>localStorage 字段</th><th>默认值</th><th>接通行为</th></tr>
+    <tr><td>BGM 音量</td><td><code>balatro.settings.bgmVolume</code></td><td>50</td><td>watch 变化 → <code>bgmSound.volume(newVal / 100)</code></td></tr>
+    <tr><td>SFX 音量</td><td><code>balatro.settings.sfxVolume</code></td><td>70</td><td>watch 变化 → 更新全局 SFX 播放音量基准（每次 play 时带入该值）</td></tr>
+  </table>
+
+  <div class="callout tip">
+    <strong>动画速度不影响音效播放速率</strong>（锁定决策）：动画速度 slider（慢/普通/快）改变的是 §5.1 动画时间线的全局倍率。音效在对应动画 step 触发，但音效本体的 <code>rate</code> 始终为 1.0，不跟随动画速度缩放。
+  </div>
+</div>
+
+<div class="module-card">
+  <h3>M4 · 移动端 Autoplay 静默解锁 <span class="priority-p1">P1</span></h3>
+
+  <p>浏览器 autoplay 政策要求必须有用户手势后才能播放音频。实现方式：</p>
+  <ul>
+    <li>监听全局 <b>首次</b> <code>pointerdown</code> 或 <code>click</code> 事件（one-time listener，触发后立即 <code>removeEventListener</code>）</li>
+    <li>在回调中调用 <code>Howler.ctx.resume()</code> 解锁 AudioContext，随后启动 BGM 淡入</li>
+    <li><b>不显示任何 UI 提示</b>（无 toast、无 banner）——玩家的第一次点击（通常是选牌）即完成解锁，完全无感</li>
+  </ul>
+</div>
+
+<h2>五、核心流程</h2>
+
+<div class="flow">
+  <span class="node">页面加载</span>
+  <span class="arrow">→</span>
+  <span class="node">Howler 预加载 6 个音频文件</span>
+  <span class="arrow">→</span>
+  <span class="node">等待首次 pointerdown</span>
+  <span class="arrow">→</span>
+  <span class="node">AudioContext 解锁 + BGM 淡入</span>
+  <span class="arrow">→</span>
+  <span class="node">游戏中各事件触发 SFX</span>
+  <span class="arrow">→</span>
+  <span class="node">设置面板调 slider → 实时音量更新</span>
+  <span class="arrow">→</span>
+  <span class="node">won/lost → BGM 淡出 + sfx-win/lose</span>
+</div>
+
+<h3>音频初始化时序</h3>
+<ol>
+  <li><b>组件挂载（onMounted）</b>：调用 <code>useAudio().init()</code>，实例化 Howl 对象（5 个 SFX + 1 个 BGM）；此时不播放，仅预加载</li>
+  <li><b>读取 localStorage</b>：从 <code>balatro.settings</code> 取 <code>bgmVolume</code> / <code>sfxVolume</code>，设置 Howl 初始音量</li>
+  <li><b>首次用户手势</b>：one-time listener 触发 → resume AudioContext → BGM 开始 800ms 淡入循环</li>
+  <li><b>游戏事件发生时</b>：对应时机调用 <code>useAudio().play('sfx-select')</code> 等方法</li>
+  <li><b>设置面板 slider 变化时</b>：watch 触发 → 同步更新 Howl 实例音量（无需重新加载文件）</li>
+</ol>
+
+<h2>六、数据与状态</h2>
+
+<table>
+  <tr><th>存储位置</th><th>Key / 字段</th><th>类型</th><th>说明</th></tr>
+  <tr><td>localStorage</td><td><code>balatro.settings.bgmVolume</code></td><td>Number 0-100</td><td>第 1 轮已存在，本轮直接读写，不新增 key</td></tr>
+  <tr><td>localStorage</td><td><code>balatro.settings.sfxVolume</code></td><td>Number 0-100</td><td>第 1 轮已存在，本轮直接读写</td></tr>
+  <tr><td>运行时内存</td><td><code>useAudio()</code> composable 内部状态</td><td>Howl 实例</td><td>6 个 Howl 实例，页面生命周期内保持，不持久化</td></tr>
+  <tr><td>运行时内存</td><td><code>audioUnlocked</code> 布尔</td><td>Boolean</td><td>标记 AudioContext 是否已被用户手势解锁，防止重复绑定 listener</td></tr>
+</table>
+
+<div class="callout tip">
+  <strong>不新增任何 localStorage key</strong>：完全复用第 1 轮的 <code>balatro.settings</code> 对象，本轮只是「把值用起来」。
+</div>
+
+<h2>七、不做什么</h2>
+
+<div class="callout warn">
+  <strong>以下内容本轮明确不做</strong>
+</div>
+
+<ul>
+  <li><b>按关卡切换 BGM</b>：单轨 BGM 贯穿全局，三个关卡不换曲——曲库扩充留给后续轮次</li>
+  <li><b>解锁提示 UI</b>（toast / banner）：静默解锁，不加任何视觉提示</li>
+  <li><b>Joker 触发专属音效</b>：Joker 触发已有视觉高亮反馈（第 1 轮 §5.3），音效归入 <code>sfx-score</code> 的整体计分爆出时机，不单独为每张 Joker 拆分音效</li>
+  <li><b>商店专属音效</b>（买卡提示音、进商店音乐切换）：本轮商店静音，只靠视觉区分</li>
+  <li><b>动画速度影响音效速率</b>：音效播放速率始终 1×，与动画速度解耦（已锁定）</li>
+  <li><b>音效可视化 / 频谱 / 均衡器</b>：不在本课程范围</li>
+  <li><b>粒子升级</b>：通关撒金币、爆分粒子等高级视觉特效，见 <code>04-第3轮-PRD-粒子.html</code></li>
+</ul>
+
+<h2>八、成功标准</h2>
+
+<table>
+  <tr><th>指标</th><th>目标</th><th>验收方式</th></tr>
+  <tr><td>SFX 覆盖率</td><td>5 个事件 100% 触发音效（非静音状态下）</td><td>手动验收：依次触发每个事件，确认有声音</td></tr>
+  <tr><td>BGM 连续性</td><td>从开局到通关/失败，BGM 无中断、无硬切、无爆音</td><td>完整玩一局，听全程 BGM</td></tr>
+  <tr><td>Slider 实时响应</td><td>拖动 BGM / SFX slider，声音在 200ms 内响应变化</td><td>打开设置面板，边拖 slider 边触发音效</td></tr>
+  <tr><td>移动端无卡顿</td><td>iOS Safari / Android Chrome 首次点击后正常播放，无报错</td><td>手机访问 GitHub Pages 链接，点击选牌后有声音</td></tr>
+  <tr><td>加载失败降级</td><td>音频文件 404 时游戏正常运行，控制台仅 console.warn，无 JS 报错打断游戏</td><td>临时改一个错误的音频路径，验证游戏不崩溃</td></tr>
+  <tr><td>构建零错误</td><td><code>npm run build</code> 0 error 0 warning</td><td>CI 输出 / 本地 build 日志</td></tr>
+</table>
+
+<h2>九、开放问题</h2>
+
+<table>
+  <tr><th>#</th><th>问题</th><th>当前默认处理</th><th>后续决策时机</th></tr>
+  <tr><td>1</td><td>BGM 素材选哪首？（需全栈工程师从 freesound.org / Mixkit 选定）</td><td>全栈工程师自行选符合卡牌游戏氛围的循环背景音乐，建议节奏偏欢快、中等 BPM（100-120）</td><td>实施阶段，工程师自选后放入 assets 目录</td></tr>
+  <tr><td>2</td><td>5 个 SFX 素材各选哪个？</td><td>见 §四 M1 表格的「推荐音色」列；全栈工程师从 freesound.org / Mixkit 各自选 1 个合适音效</td><td>实施阶段</td></tr>
+  <tr><td>3</td><td>若后续增加关卡切换时换 BGM，是否会破坏本轮架构？</td><td>不会——<code>useAudio()</code> composable 只需增加一个 <code>bgm-round2.mp3</code> Howl 实例，淡出旧的淡入新的即可扩展</td><td>后续轮次需要时再扩展</td></tr>
+</table>
+
+<hr>
+
+<h2>十、已知翻车点 / 性能上限 / 兜底策略 <span class="lock">必读</span></h2>
+
+<div class="callout warn">
+  <strong>以下每一条都是浏览器音频的已知坑，必须在实施阶段逐条覆盖</strong>
+</div>
+
+<h3>10.1 Autoplay 解锁失败</h3>
+<p><b>场景</b>：AudioContext.resume() 因某些严格浏览器策略失败（返回 rejected Promise）。</p>
+<p><b>兜底</b>：catch 块里静默处理——<code>console.warn('[Audio] autoplay unlock failed, running muted')</code>，不抛错、不弹 alert、不阻止游戏继续。音量保持 0 但 Howl 实例照常存活，下次用户手势若再触发则重试一次 resume。</p>
+
+<h3>10.2 音频文件加载失败</h3>
+<p><b>场景</b>：mp3 文件 404、CDN 超时、或素材路径配置错误。</p>
+<p><b>兜底</b>：Howler 的 <code>onloaderror</code> 回调触发时，<code>console.warn('[Audio] failed to load: ' + src)</code>，对应音效的 <code>play()</code> 调用改为 no-op（直接 return，不向上冒泡异常）。游戏逻辑、计分、状态机不受任何影响。</p>
+
+<h3>10.3 BGM 关卡切换硬切</h3>
+<p><b>场景</b>：若未来要在关卡边界换 BGM，直接 stop / play 会产生刺耳硬切。</p>
+<p><b>本轮处理</b>：本轮只有 1 轨 BGM 不换，无此问题。为后续扩展留接口：封装 <code>switchBgm(newSrc, fadeDuration = 800)</code>，先 fade out 旧轨再 fade in 新轨。</p>
+
+<h3>10.4 SFX 叠播爆音</h3>
+<p><b>场景</b>：玩家快速连续点选牌，<code>sfx-select</code> 在 200ms 内被触发 5+ 次，多个实例同时播放导致音量叠加失真。</p>
+<p><b>兜底</b>：维护一个运行时计数器 <code>activeSfxCount</code>，每次 play 前检查；若 &gt;= 4 则 return（静默跳过新触发的 <code>sfx-select</code>）。Howl 的 <code>onplay</code> / <code>onstop</code> / <code>onend</code> 回调负责维护计数器。</p>
+
+<h3>10.5 Safari 移动端 AudioContext 状态</h3>
+<p><b>场景</b>：iOS Safari 的 AudioContext 在页面 hidden（切后台）后可能自动 suspended，切回来后音频失效。</p>
+<p><b>兜底</b>：监听 <code>document.visibilitychange</code>；当 <code>document.visibilityState === 'visible'</code> 时调用 <code>Howler.ctx?.resume()</code> 重新激活。</p>
+
+<h3>10.6 文件命名与目录约定 <span class="lock">锁定</span></h3>
+<pre><code>balatro-game/src/assets/audio/
+  ├── sfx-select.mp3     # 选牌音效
+  ├── sfx-play.mp3       # 出牌音效
+  ├── sfx-score.mp3      # 计分爆出音效
+  ├── sfx-win.mp3        # 通关音效
+  ├── sfx-lose.mp3       # 失败音效
+  └── bgm-main.mp3       # BGM 主循环</code></pre>
+<p>全部采用 <b>mp3 格式</b>（兼容性最广，Howler 支持格式列表的首选）。文件大小建议：每个 SFX &lt; 100KB，BGM &lt; 3MB（128kbps 约 3 分钟曲目）。</p>
+
+<h3>10.7 构建产物包含音频文件</h3>
+<p>音频文件放在 <code>src/assets/audio/</code> 目录下，Vite 默认会把 assets 目录下的静态资源打包到 <code>dist/assets/</code>。若文件体积超过 Vite 默认的 inline 阈值（4KB），会自动以 URL 引用形式处理——这对音频是期望行为（不要把 mp3 内联为 base64）。如有需要，在 <code>vite.config.js</code> 中把音频格式加入 <code>assetsInclude</code> 白名单：<code>assetsInclude: ['**/*.mp3']</code>。</p>
+
+<hr>
+
+<h2>十一、给全栈工程师的实施提示</h2>
+
+<div class="callout win">
+  <strong>本节是给工程师的技术建议，非产品需求，工程师可按实际情况微调实现方式</strong>
+</div>
+
+<h3>11.1 依赖安装</h3>
+<pre><code>npm install howler
+# 如果项目有 TypeScript，可选加：
+npm install --save-dev @types/howler</code></pre>
+
+<h3>11.2 推荐封装：Vue 3 Composable <code>useAudio()</code></h3>
+<p>建议新建 <code>src/composables/useAudio.js</code>，集中管理所有 Howl 实例。核心职责：</p>
+<ul>
+  <li><code>init(bgmVolume, sfxVolume)</code>：一次性实例化 6 个 Howl 对象，设置初始音量</li>
+  <li><code>play(eventId)</code>：根据 eventId 查表触发对应 Howl.play()，内含 activeSfxCount 守卫</li>
+  <li><code>setBgmVolume(0-100)</code> / <code>setSfxVolume(0-100)</code>：实时更新音量，供设置面板 watch 调用</li>
+  <li><code>unlockAudio()</code>：封装 AudioContext.resume() + BGM 淡入逻辑</li>
+  <li><code>fadeOutBgm(duration)</code>：game over 时淡出 BGM</li>
+</ul>
+
+<h3>11.3 设置面板接线方式</h3>
+<p>第 1 轮的设置面板组件里已有两个 slider 绑定到 <code>settings.bgmVolume</code> / <code>settings.sfxVolume</code>。只需在设置面板组件（或顶层 App.vue）中加两个 watch：</p>
+<pre><code>watch(() => settings.bgmVolume, (val) => audio.setBgmVolume(val))
+watch(() => settings.sfxVolume, (val) => audio.setSfxVolume(val))</code></pre>
+
+<h3>11.4 SFX 挂载点（对应 §5.1 出牌时间线）</h3>
+<table>
+  <tr><th>在哪里调用 play()</th><th>调用什么</th></tr>
+  <tr><td>手牌点击事件处理函数（toggleCardSelection）</td><td><code>audio.play('sfx-select')</code></td></tr>
+  <tr><td>handlePlay() 函数最开头（出牌按钮按下后的第一行）</td><td><code>audio.play('sfx-play')</code></td></tr>
+  <tr><td>§5.1 步骤 5 大金字 chips × mult = score 弹出的同帧</td><td><code>audio.play('sfx-score')</code></td></tr>
+  <tr><td>状态机切换到 won 的同帧（fadeOutBgm 之后立即 play）</td><td><code>audio.play('sfx-win')</code> + <code>audio.fadeOutBgm(1200)</code></td></tr>
+  <tr><td>状态机切换到 lost 的同帧</td><td><code>audio.play('sfx-lose')</code> + <code>audio.fadeOutBgm(1200)</code></td></tr>
+</table>
+
+<h3>11.5 commit message 格式（对应第 1 轮 §11.1）</h3>
+<pre><code>feat: 第 3 轮 - 配乐（SFX × 5 + BGM，Howler.js）（v1.2.0）</code></pre>
+<p>本轮只做音效，粒子升级另行 commit（若同轮做则合并为：<code>feat: 第 3 轮 - 配乐 + 粒子升级（v1.2.0）</code>）。</p>
+
+<hr>
+
+<div class="footer">
+  小丑牌教学 · B2 · 第 3 轮 PRD · 配乐子模块（SFX + BGM） · v1
+</div>
+
+</div>
+</body>
+</html>

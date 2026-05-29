@@ -229,7 +229,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, nextTick } from 'vue'
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue'
 import SideBar from './components/SideBar.vue'
 import JokerCard from './components/JokerCard.vue'
 import PokerCard from './components/PokerCard.vue'
@@ -242,6 +242,10 @@ import {
   JOKER_POOL, BLINDS, calcReward,
   aiBestPlay, aiBestShopJoker
 } from './composables/gameLogic.js'
+import { useAudio } from './composables/useAudio.js'
+
+// ===== 音效系统 — PRD §三 M1/M2/M3 =====
+const audio = useAudio()
 
 // ===== 设置系统 — PRD §5.4 localStorage =====
 const DEFAULT_SETTINGS = {
@@ -350,8 +354,17 @@ const previewScore = computed(() => previewChips.value * previewMult.value)
 
 // ===== 初始化 =====
 onMounted(() => {
+  // 音效：初始化 Howler 实例，读 localStorage 设置初始音量 — PRD §五 音频初始化时序
+  audio.init(settings.bgmVolume, settings.sfxVolume)
+  // 挂首次 pointerdown 解锁监听 — PRD §四 M4
+  audio.unlockAudio()
+
   restartGame()
 })
+
+// 设置面板 slider watch — PRD §四 M3 / §十一.3
+watch(() => settings.bgmVolume, (val) => audio.setBGMVolume(val))
+watch(() => settings.sfxVolume, (val) => audio.setSFXVolume(val))
 
 function restartGame() {
   gameState.value = 'playing'
@@ -374,6 +387,10 @@ function restartGame() {
   aiThinking.value = false
   deck.value = createDeck()
   hand.value = []
+  // 重新开始时若 AudioContext 已解锁（曾有用户交互），重启 BGM
+  // BGM 在首次游戏由 unlockAudio 里的 pointerdown 触发
+  // 重开时直接调 playBGM，已解锁则立刻播，未解锁则 unlockAudio 监听仍在
+  audio.playBGM()
   nextTick(() => dealCards(8))
 }
 
@@ -445,6 +462,8 @@ function toggleSelect(card) {
     ids.add(card.id)
   }
   selectedCardIds.value = ids
+  // PRD §四 M1：选牌音效（含叠播上限守卫，在 useAudio 内处理）
+  audio.playSFX('select')
 }
 
 // ===== 排序 =====
@@ -486,6 +505,9 @@ async function handleAiShop() {
 async function handlePlay() {
   if (selectedCards.value.length === 0 || isAnimating.value) return
   isAnimating.value = true
+
+  // PRD §四 M1：出牌按下音效（步骤 1 飞牌开始前）
+  audio.playSFX('play')
 
   const cards = [...selectedCards.value]
   selectedCardIds.value = new Set()
@@ -552,13 +574,14 @@ async function handlePlay() {
     await sleep(ms(500))
   }
 
-  // 步骤 5：公式爆出（800ms）
+  // 步骤 5：公式爆出（800ms）— PRD §四 M1 sfx-score 在此时刻触发
   finalChips.value = chips
   finalMult.value  = mult
   finalScore.value = score
   displayChips.value = chips
   displayMult.value  = mult
   showFinalFormula.value = true
+  audio.playSFX('score')
   await sleep(ms(800))
 
   // 步骤 6：blindScore 累加（RAF 插值 600ms）
@@ -598,6 +621,9 @@ async function handlePlay() {
     await sleep(ms(300))
     enterShop()
   } else if (handsLeft.value === 0) {
+    // PRD §四 M1：进入 lost 状态时 sfx-lose + BGM 淡出
+    audio.fadeOutBGM(1200)
+    audio.playSFX('lose')
     gameState.value = 'lost'
   }
 }
@@ -666,6 +692,9 @@ function shopBtnClass(sj) {
 function skipShop() {
   aiHighlightedJokerId.value = null
   if (currentBlindIndex.value >= BLINDS.length - 1) {
+    // PRD §四 M1：进入 won 状态时 sfx-win + BGM 淡出
+    audio.fadeOutBGM(1200)
+    audio.playSFX('win')
     gameState.value = 'won'
     return
   }
